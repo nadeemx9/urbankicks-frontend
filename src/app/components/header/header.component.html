@@ -112,27 +112,32 @@
         <i class="fa fa-angle-down text-dark"></i>
       </a>
       <nav class="collapse position-absolute navbar navbar-vertical navbar-light align-items-start p-0 bg-light"
-        id="brands" style="width: calc(100% - 30px); z-index: 999;">
-        <div class="navbar-nav w-100 bg-secondary">
-          <!--Brands start-->
-          <div class="nav-item dropdown dropright" *ngFor="let brand of brands">
-            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">{{brand?.brandName}}<i
-                class="fa fa-angle-right float-right mt-1"></i></a>
+      id="brands" style="width: calc(100% - 30px); z-index: 999;">
+    <div class="navbar-nav w-100 bg-secondary">
+      <!-- Brands start -->
+      <div class="nav-item" *ngFor="let brand of brands">
+        <ng-container *ngIf="brand.collections && brand.collections.length > 0; else noCollection">
+          <div class="dropdown dropright">
+            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
+              {{ brand?.brandName }} <i class="fa fa-angle-right float-right mt-1"></i>
+            </a>
             <div class="dropdown-menu position-absolute rounded-0 border-0 m-0 bg-secondary">
-              <a href="" class="dropdown-item">Casual Shoes</a>
-              <a href="" class="dropdown-item">Formal Shoes</a>
-              <a href="" class="dropdown-item">Sports Shoes</a>
-              <a href="" class="dropdown-item">Loafers</a>
-              <a href="" class="dropdown-item">Sneakers</a>
-              <a href="" class="dropdown-item">Sandals</a>
-              <a href="" class="dropdown-item">Slippers</a>
-              <a href="" class="dropdown-item">Boots</a>
+              <a href="" class="dropdown-item">All</a>
+              <ng-container *ngFor="let collection of brand.collections">
+                <a routerLink="/shop" class="dropdown-item">{{ collection.collectionName }}</a>
+              </ng-container>
             </div>
           </div>
-          <!--Brands end-->
-          <a href="" class="nav-item nav-link">Other</a>
-        </div>
-      </nav>
+        </ng-container>
+        <ng-template #noCollection>
+          <a href="" class="nav-link">{{ brand?.brandName }}</a>
+        </ng-template>
+      </div>
+      <!-- Brands end -->
+      <a href="" class="nav-item nav-link">Other</a>
+    </div>
+  </nav>
+  
     </div>
     <!-- Brands Dropdown end -->
 

@@ -20,6 +20,10 @@ export class CommonService {
     return this.http.get(`${this.baseUrl}/get-categories-dropdown`);
   }
 
+  getCategoriesSection() {
+    return this.http.get(`${this.baseUrl}/get-categories-section`);
+  }
+
   getGenders() {
     return this.http.get(`${this.baseUrl}/get-genders`);
   }

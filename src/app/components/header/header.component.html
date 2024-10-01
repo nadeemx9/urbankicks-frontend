@@ -41,65 +41,35 @@
       <nav class="collapse position-absolute navbar navbar-vertical navbar-light align-items-start p-0 bg-light"
         id="categories" style="width: calc(100% - 30px); z-index: 999;">
         <div class="navbar-nav w-100 bg-secondary">
-          <!--Men's Footwear start-->
-          <div class="nav-item dropdown dropright">
-            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Men's Footwear <i
-                class="fa fa-angle-right float-right mt-1"></i></a>
-            <div class="dropdown-menu position-absolute rounded-0 border-0 m-0 bg-secondary">
-              <a href="" class="dropdown-item">Casual Shoes</a>
-              <a href="" class="dropdown-item">Formal Shoes</a>
-              <a href="" class="dropdown-item">Sports Shoes</a>
-              <a href="" class="dropdown-item">Loafers</a>
-              <a href="" class="dropdown-item">Sneakers</a>
-              <a href="" class="dropdown-item">Sandals</a>
-              <a href="" class="dropdown-item">Slippers</a>
-              <a href="" class="dropdown-item">Boots</a>
-            </div>
-          </div>
-          <!--Men's Footwear end-->
-          <!--Women's Footwear start-->
-          <div class="nav-item dropdown dropright">
-            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Women's Footwear <i
-                class="fa fa-angle-right float-right mt-1"></i></a>
-            <div class="dropdown-menu position-absolute rounded-0 border-0 m-0 bg-secondary">
-              <a href="" class="dropdown-item">Heels</a>
-              <a href="" class="dropdown-item">Flats</a>
-              <a href="" class="dropdown-item">Wedges</a>
-              <a href="" class="dropdown-item">Sandals</a>
-              <a href="" class="dropdown-item">Sneakers</a>
-              <a href="" class="dropdown-item">Ballet Flats</a>
-              <a href="" class="dropdown-item">Pumps</a>
-              <a href="" class="dropdown-item">Boots</a>
-              <a href="" class="dropdown-item">Mules</a>
-              <a href="" class="dropdown-item">Slippers</a>
-            </div>
-          </div>
-          <!--Women's Footwear end-->
-          <!--Kids's Footwear start-->
-          <div class="nav-item dropdown dropright">
-            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Kids's Footwear <i
-                class="fa fa-angle-right float-right mt-1"></i></a>
-            <div class="dropdown-menu position-absolute rounded-0 border-0 m-0 bg-secondary">
-              <a href="" class="dropdown-item">Boys' Shoes</a>
-              <a href="" class="dropdown-item">Girls' Shoes</a>
-              <a href="" class="dropdown-item">Sneakers</a>
-              <a href="" class="dropdown-item">Sandals</a>
-              <a href="" class="dropdown-item">Boots</a>
-              <a href="" class="dropdown-item">School Shoes</a>
-              <a href="" class="dropdown-item">Sports Shoes</a>
-              <a href="" class="dropdown-item">Slippers</a>
-            </div>
-          </div>
-          <!--Kids's Footwear end-->
 
-          <a href="" class="nav-item nav-link">Running Shoes</a>
-          <a href="" class="nav-item nav-link">Hiking Boots</a>
-          <a href="" class="nav-item nav-link">Training Shoes</a>
-          <a href="" class="nav-item nav-link">Basketball Shoes</a>
-          <a href="" class="nav-item nav-link">Football Shoes</a>
-          <a href="" class="nav-item nav-link">Tennis Shoes</a>
-          <a href="" class="nav-item nav-link">Cleats</a>
-          <a href="" class="nav-item nav-link">Flip Flops</a>
+          <!-- Loop through categories -->
+          <div class="nav-item" *ngFor="let category of categories">
+            <!-- Display dropright for categories with a gender that isn't 'Unisex' -->
+            <ng-container *ngIf="category?.genderName !== 'Unisex'; else unisexCategories">
+              <div class="dropdown dropright">
+                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
+                  {{ category?.genderName }} <i class="fa fa-angle-right float-right mt-1"></i>
+                </a>
+                <div class="dropdown-menu position-absolute rounded-0 border-0 m-0 bg-secondary">
+                  <a href="" class="dropdown-item">All</a>
+                  <!-- Loop through the subcategories (categories under gender) -->
+                  <ng-container *ngFor="let c of category?.categories">
+                    <a routerLink="/shop" class="dropdown-item">{{ c?.categoryName }}</a>
+                  </ng-container>
+                </div>
+              </div>
+            </ng-container>
+
+            <!-- Display Unisex Categories as Individual Items -->
+            <ng-template #unisexCategories>
+              <ng-container *ngFor="let unisexCategory of category?.categories">
+                <a routerLink="/shop" class="nav-item nav-link">{{ unisexCategory?.categoryName }}</a>
+              </ng-container>
+            </ng-template>
+          </div>
+
+          <!-- Other categories link -->
+          <a href="" class="nav-item nav-link">Other</a>
         </div>
       </nav>
     </div>
@@ -112,65 +82,55 @@
         <i class="fa fa-angle-down text-dark"></i>
       </a>
       <nav class="collapse position-absolute navbar navbar-vertical navbar-light align-items-start p-0 bg-light"
-      id="brands" style="width: calc(100% - 30px); z-index: 999;">
-    <div class="navbar-nav w-100 bg-secondary">
-      <!-- Brands start -->
-      <div class="nav-item" *ngFor="let brand of brands">
-        <ng-container *ngIf="brand.collections && brand.collections.length > 0; else noCollection">
-          <div class="dropdown dropright">
-            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
-              {{ brand?.brandName }} <i class="fa fa-angle-right float-right mt-1"></i>
-            </a>
-            <div class="dropdown-menu position-absolute rounded-0 border-0 m-0 bg-secondary">
-              <a href="" class="dropdown-item">All</a>
-              <ng-container *ngFor="let collection of brand.collections">
-                <a routerLink="/shop" class="dropdown-item">{{ collection.collectionName }}</a>
-              </ng-container>
-            </div>
+        id="brands" style="width: calc(100% - 30px); z-index: 999;">
+        <div class="navbar-nav w-100 bg-secondary">
+          <!-- Brands start -->
+          <div class="nav-item" *ngFor="let brand of brands">
+            <ng-container *ngIf="brand.collections && brand.collections.length > 0; else noCollection">
+              <div class="dropdown dropright">
+                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
+                  {{ brand?.brandName }} <i class="fa fa-angle-right float-right mt-1"></i>
+                </a>
+                <div class="dropdown-menu position-absolute rounded-0 border-0 m-0 bg-secondary">
+                  <a href="" class="dropdown-item">All</a>
+                  <ng-container *ngFor="let collection of brand.collections">
+                    <a routerLink="/shop" class="dropdown-item">{{ collection.collectionName }}</a>
+                  </ng-container>
+                </div>
+              </div>
+            </ng-container>
+            <ng-template #noCollection>
+              <a href="" class="nav-link">{{ brand?.brandName }}</a>
+            </ng-template>
           </div>
-        </ng-container>
-        <ng-template #noCollection>
-          <a href="" class="nav-link">{{ brand?.brandName }}</a>
-        </ng-template>
-      </div>
-      <!-- Brands end -->
-      <a href="" class="nav-item nav-link">Other</a>
-    </div>
-  </nav>
-  
+          <!-- Brands end -->
+          <a href="" class="nav-item nav-link">Other</a>
+        </div>
+      </nav>
+
     </div>
     <!-- Brands Dropdown end -->
 
     <div class="col-lg-6">
       <nav class="navbar navbar-expand-lg bg-dark navbar-dark py-3 py-lg-0 px-0">
-        <a routerLink="" class="text-decoration-none d-block d-lg-none">
+        <!-- <a routerLink="" class="text-decoration-none d-block d-lg-none">
           <span class="h1 text-uppercase text-dark bg-light px-2">Urban</span>
           <span class="h1 text-uppercase text-light bg-primary px-2 ml-n1">Kicks</span>
         </a>
         <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
           <span class="navbar-toggler-icon"></span>
-        </button>
+        </button> -->
         <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
           <div class="navbar-nav mr-auto py-0">
-            <a routerLink="/shop" class="nav-item nav-link">Trending</a>
-            <a routerLink="/product-detail" class="nav-item nav-link">Shop Detail</a>
             <div class="nav-item dropdown">
-              <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Brands <i
+              <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Trending <i
                   class="fa fa-angle-down mt-1"></i></a>
               <div class="dropdown-menu bg-secondary rounded-0 border-0 m-0">
-                <a routerLink="/cart" class="dropdown-item">Addidas</a>
-                <a routerLink="/cart" class="dropdown-item">Nike</a>
-                <a routerLink="/cart" class="dropdown-item">Puma</a>
-                <a routerLink="/cart" class="dropdown-item">Reebok</a>
-                <a routerLink="/cart" class="dropdown-item">Under Armour</a>
-                <a routerLink="/cart" class="dropdown-item">New Balance</a>
-                <a routerLink="/cart" class="dropdown-item">Converse</a>
-                <a routerLink="/cart" class="dropdown-item">Vans</a>
-                <a routerLink="/cart" class="dropdown-item">Skechers</a>
-                <a routerLink="/cart" class="dropdown-item">Asics</a>
-                <a routerLink="/cart" class="dropdown-item">Crocs</a>
+                <a routerLink="/cart" class="dropdown-item">Item-1</a>
+                <a routerLink="/cart" class="dropdown-item">Item-2</a>
               </div>
             </div>
+            <a routerLink="/product-detail" class="nav-item nav-link">Shop Detail</a>
             <a routerLink="/contact" class="nav-item nav-link">Contact</a>
           </div>
           <div class="navbar-nav ml-auto py-0 d-none d-lg-block">

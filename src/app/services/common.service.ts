@@ -10,16 +10,14 @@ export class CommonService {
 
   constructor(
     private http: HttpClient
-  ) {
-
-  }
+  ) {}
 
   getBrands() {
-    return this.http.get(`${this.baseUrl}/get-brands`);
+    return this.http.get(`${this.baseUrl}/get-brands-dropdown`);
   }
 
   getCategories() {
-    return this.http.get(`${this.baseUrl}/get-categories`);
+    return this.http.get(`${this.baseUrl}/get-categories-dropdown`);
   }
 
   getGenders() {

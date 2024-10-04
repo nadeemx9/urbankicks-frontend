@@ -1,8 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { BrowserModule, Title } from '@angular/platform-browser';
-import { RouterModule } from '@angular/router';
+import { Title } from '@angular/platform-browser';
+import { Router, RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { AuthService } from '../../services/auth.service';
 import { CommonService } from '../../services/common.service';
 
 @Component({
@@ -22,19 +23,23 @@ export class HeaderComponent {
 
   subscription: Subscription = new Subscription
 
+  isLoggedIn: boolean = false;
+
   constructor(
     private titleService: Title,
-    private commonService: CommonService
+    private commonService: CommonService,
+    private authSerice: AuthService,
+    private router: Router,
+    private authService: AuthService
   ) {
     titleService.setTitle('UrbanKicks - Kick It!')
-
   }
   ngOnInit(): void {
+    this.isLoggedIn = this.authSerice.isLoggedIn();
     this.getBrands();
     this.getCategories();
     this.getGenders();
   }
-
 
   getBrands() {
     this.subscription.add(
@@ -73,6 +78,11 @@ export class HeaderComponent {
         }
       })
     );
+  }
+
+  logout() {
+    this.authSerice.logout();
+    this.router.navigate(['/login']);
   }
 
   ngOnDestroy(): void {

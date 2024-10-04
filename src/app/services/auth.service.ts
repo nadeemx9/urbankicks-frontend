@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Router } from '@angular/router';
 import { BehaviorSubject, Observable } from 'rxjs';
 
 @Injectable({
@@ -9,42 +10,40 @@ export class AuthService {
 
   private baseUrl = 'http://localhost:8080/api/auth'
 
-    // Subject to track login state
-    private loggedIn = new BehaviorSubject<boolean>(this.checkLoginStatus());
+  // Subject to track login state
+  private loggedIn = new BehaviorSubject<boolean>(this.checkLoginStatus());
 
   constructor(
-    private http: HttpClient
+    private http: HttpClient,
+    private router : Router
   ) { }
 
 
-  authenticate(payload: any) {
-    return this.http.post(`${this.baseUrl}/authenticate`, payload)
+  authenticate(payload: any): Observable<any> {
+    return this.http.post(`${this.baseUrl}/authenticate`, payload);
   }
 
-  // Function to store the token in localStorage
-  storeToken(token: string) {
+  storeToken(token: string): void {
     localStorage.setItem('token', token);
     this.loggedIn.next(true); // Set loggedIn to true when token is stored
   }
 
-  // Function to retrieve token from localStorage
   getToken(): string | null {
     return localStorage.getItem('token');
   }
 
-   // Expose login state as an observable
-   isLoggedIn(): Observable<boolean> {
-    return this.loggedIn.asObservable();
+  isLoggedIn(): Observable<boolean> {
+    return this.loggedIn.asObservable(); // Observable to track login state
   }
 
-    // Check if the user is logged in by checking token existence
-    checkLoginStatus(): boolean {
-      return !!this.getToken(); // Check if token exists in localStorage
-    }
+  // Check if the user is logged in by checking if token exists
+  checkLoginStatus(): boolean {
+    return !!this.getToken(); // Synchronous check for token existence
+  }
 
-    // Function to log out the user
-    logout() {
-      localStorage.removeItem('token');
-      this.loggedIn.next(false); // Set loggedIn to false after logging out
-    }
+  logout(): void {
+    localStorage.removeItem('token');
+    this.loggedIn.next(false); // Update loggedIn state
+    this.router.navigate(['/login']); // Navigate to login after logout
+  }
 }

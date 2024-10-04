@@ -88,7 +88,6 @@ export class HeaderComponent {
 
   logout() {
     this.authSerice.logout();
-    this.router.navigate(['/login']);
   }
 
   ngOnDestroy(): void {

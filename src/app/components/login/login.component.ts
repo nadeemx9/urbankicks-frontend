@@ -1,16 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, RequiredValidator, Validators } from '@angular/forms';
-import { BrowserModule, Title } from '@angular/platform-browser';
-import { Router, RouterModule, Routes } from '@angular/router';
-import { AuthService } from '../../services/auth.service';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Title } from '@angular/platform-browser';
+import { Router, RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
-
-
-
-interface NavigationState {
-  message?: string;  // Optional message property
-}
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -28,9 +22,6 @@ export class LoginComponent implements OnInit, OnDestroy {
   loginForm: FormGroup
   subscription: Subscription = new Subscription
 
-  showToast: boolean = true;
-  message = 'Logged out success!';
-
   constructor(
     private fb: FormBuilder,
     private titleService: Title,
@@ -45,26 +36,55 @@ export class LoginComponent implements OnInit, OnDestroy {
     })
   }
 
+  ngOnInit(): void {
+  }
+
   onSubmit() {
     this.loginForm.markAllAsTouched();
+
     if (this.loginForm.valid) {
-      const payload = this.loginForm?.value
+      const payload = this.loginForm.value;
       this.subscription.add(
         this.authService.authenticate(payload).subscribe({
           next: (resp: any) => {
-            this.authService.storeToken(resp.token);  // Store the token
-            this.router.navigate([''])
+            this.authService.storeToken(resp.token);
+            this.router.navigate(['']);
           },
           error: (err: any) => {
-            console.log(err);
+            if (err?.error?.status === 400 && err?.error?.respCode === "VALIDATION_ERROR") {
+              this.handleValidationErrors(err?.error?.errors);
+            } else {
+              console.log(err);
+            }
           }
         })
       );
-    } else this.focusFirstInvalidControl();
+    } else {
+      this.focusFirstInvalidControl();
+    }
   }
 
-  ngOnInit(): void {
+  private handleValidationErrors(errors: any) {
+    for (const field in errors) {
+      if (errors.hasOwnProperty(field)) {
+        const errorCode = errors[field];
+        const control = this.loginForm.get(field);
+        if (control) {
+          switch (errorCode) {
+            case '101':
+              control.setErrors({ required: true });
+              break;
+            case '102':
+              control.setErrors({ required: true });
+              break;
+            default:
+              control.setErrors({ unknownError: true });
+          }
+        }
+      }
+    }
   }
+
 
   private focusFirstInvalidControl(): void {
     const invalidControl = document.querySelector('.ng-invalid[formControlName]') as HTMLElement;

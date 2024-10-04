@@ -30,7 +30,7 @@ export const routes: Routes = [
   },
   {
     path: 'product-detail',
-    component: ProductDetailComponent, canActivate: [AuthGuard]
+    component: ProductDetailComponent
   },
   {
     path: 'shop',

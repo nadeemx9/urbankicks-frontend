@@ -31,17 +31,17 @@ export class LoginComponent implements OnInit, OnDestroy {
     titleService.setTitle('UrbanKicks - Login')
 
     this.loginForm = this.fb.group({
-      username: ['', Validators.required],
+      email: ['', Validators.required],
       password: ['', Validators.required]
     })
   }
 
   ngOnInit(): void {
+    this.goToTop()
   }
 
   onSubmit() {
     this.loginForm.markAllAsTouched();
-
     if (this.loginForm.valid) {
       const payload = this.loginForm.value;
       this.subscription.add(

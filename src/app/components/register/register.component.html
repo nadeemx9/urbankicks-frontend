@@ -1,80 +1,124 @@
 <div class="register-container">
   <h3 class="text-center mb-4">Register</h3>
-  <form>
-    <div class="mb-2 row">
+  <form [formGroup]="registerForm">
+    <div class="mb-3 row">
       <div class="col-6">
         <label for="fname" class="form-label asterik">First name</label>
-        <input type="text" class="form-control" id="fname" placeholder="Enter first name">
+        <input type="text" class="form-control" id="fname" placeholder="Enter first name" formControlName="fname">
+        <span *ngIf="this.registerForm.get('fname')?.touched && this.registerForm.get('fname')?.hasError('required')"
+          class="text-danger">First name is required</span>
       </div>
       <div class="col-6">
         <label for="lname" class="form-label asterik">Last name</label>
-        <input type="text" class="form-control" id="lname" placeholder="Enter last name">
+        <input type="text" class="form-control" id="lname" placeholder="Enter last name" formControlName="lname">
+        <span *ngIf="this.registerForm.get('lname')?.touched && this.registerForm.get('lname')?.hasError('required')"
+          class="text-danger">Last name is required</span>
       </div>
     </div>
-    <div class="mb-2 row">
+    <div class="mb-3 row">
       <div class="col-6">
         <label for="email" class="form-label asterik">Email address</label>
-        <input type="email" class="form-control" id="email" placeholder="Enter email">
+        <input type="email" class="form-control" id="email" placeholder="Enter email" formControlName="email">
+        <span *ngIf="this.registerForm.get('email')?.touched && this.registerForm.get('email')?.hasError('required')"
+          class="text-danger">Email is required</span>
       </div>
+
       <div class="col-6">
-        <label for="mobile" class="form-label">Mobile No.</label>
-        <input type="text" class="form-control" id="mobile" placeholder="Enter mobile no">
+        <label for="mobile" class="form-label">Mobile No. (Optional)</label>
+        <div class="input-group">
+          <input type="text" class="form-control col-2" id="countryCode" value="+91" readonly>
+          <input type="text" class="form-control" id="mobile" placeholder="Enter mobile no" formControlName="mobile">
+        </div>
+        <span *ngIf="this.registerForm.get('mobile')?.touched && this.registerForm.get('mobile')?.hasError('required')"
+          class="text-danger">Mobile no. is required</span>
       </div>
     </div>
-    <div class="mb-2 row">
+
+    <div class="mb-3 row">
       <div class="col-6">
         <label for="password" class="form-label asterik">Password</label>
-        <input type="password" class="form-control" id="password" placeholder="Password">
+        <input type="password" class="form-control" id="password" placeholder="Password" formControlName="password">
+        <span
+          *ngIf="this.registerForm.get('password')?.touched && this.registerForm.get('password')?.hasError('required')"
+          class="text-danger">Password is required</span>
       </div>
       <div class="col-6">
         <label for="cpassword" class="form-label asterik">Confirm Password</label>
-        <input type="password" class="form-control" id="cpassword" placeholder="Confirm Password">
+        <input type="password" class="form-control" id="cpassword" placeholder="Confirm Password"
+          formControlName="cpassword">
+        <span
+          *ngIf="this.registerForm.get('cpassword')?.touched && this.registerForm.get('cpassword')?.hasError('required')"
+          class="text-danger">Confirm password is required</span>
+        <span
+          *ngIf="registerForm.hasError('passwordsMismatch') && (registerForm.get('cpassword')?.touched || registerForm.get('password')?.touched)"
+          class="text-danger">
+          Passwords do not match.
+        </span>
       </div>
     </div>
-    <div class="mb-2 row">
+    <div class="mb-3 row">
       <div class="col">
         <label for="address" class="form-label asterik">Address</label>
-        <textarea class="form-control" id="address" rows="3" placeholder="Enter address"></textarea>
+        <textarea class="form-control" id="address" rows="3" placeholder="Enter address"
+          formControlName="address"></textarea>
+        <span
+          *ngIf="this.registerForm.get('address')?.touched && this.registerForm.get('address')?.hasError('required')"
+          class="text-danger">Address is required</span>
       </div>
     </div>
-    <div class="mb-2 row">
+    <div class="mb-3 row">
       <div class="col-6">
         <label for="state" class="form-label asterik">State</label>
-        <select class="form-control" id="state" aria-label="Select State" (change)="onStateSelect($event)">
-          <option value="">Select State</option>
-          <option *ngFor="let state of states" [value]="state?.stateId">
-            {{state?.stateName}}</option>
+        <select class="form-control" id="state" aria-label="Select State" (change)="onStateSelect($event)"
+          formControlName="stateId">
+          <option [value]="null" selected>Select State</option>
+          <option *ngFor="let state of states" [value]="state?.stateId">{{state?.stateName}}
+          </option>
         </select>
+        <span
+          *ngIf="this.registerForm.get('stateId')?.touched && this.registerForm.get('stateId')?.hasError('required')"
+          class="text-danger">Please select state</span>
       </div>
       <div class="col-6">
         <label for="district" class="form-label asterik">District</label>
-        <select class="form-control" id="district" aria-label="Select District">
-          <option value="" selected>Select District</option>
-          <option *ngFor="let district of districts" [value]="district?.districtId">{{district?.districtName}}</option>
+        <select class="form-control" id="district" aria-label="Select District" formControlName="districtId">
+          <option [value]="null" selected>Select District</option>
+          <option *ngFor="let district of districts" [value]="district?.districtId">
+            {{district?.districtName}}</option>
         </select>
+        <span
+          *ngIf="this.registerForm.get('districtId')?.touched && this.registerForm.get('districtId')?.hasError('required')"
+          class="text-danger">Please select district</span>
       </div>
     </div>
-    <div class="mb-2 row">
+    <div class="mb-3 row">
       <div class="col-8">
         <label for="city" class="form-label asterik">City</label>
-        <input type="text" class="form-control" id="city" placeholder="Enter city">
+        <input type="text" class="form-control" id="city" placeholder="Enter city" formControlName="city">
+        <span *ngIf="this.registerForm.get('city')?.touched && this.registerForm.get('city')?.hasError('required')"
+          class="text-danger">City is required</span>
       </div>
       <div class="col-4">
         <label for="postal" class="form-label asterik">Postal Code</label>
-        <input type="text" class="form-control" id="postal" placeholder="Enter postal code">
+        <input type="text" class="form-control" id="postal" placeholder="Enter postal code" formControlName="postal">
+        <span *ngIf="this.registerForm.get('postal')?.touched && this.registerForm.get('postal')?.hasError('required')"
+          class="text-danger">Postal code is required</span>
       </div>
     </div>
-    <div class="mb-2 row form-check">
+    <div class="mb-3 row form-check">
       <div class="col-12">
         <input type="checkbox" class="form-check-input" id="agreeTerms">
         <label class="form-check-label asterik" for="agreeTerms">I agree to the terms and conditions</label>
       </div>
     </div>
-    <div class="mb-2 row">
-      <div class="col-12">
-        <button type="submit" class="btn btn-primary w-100">Register</button>
+    <div class="mb-3 row">
+      <div class="col-8">
+        <button type="submit" class="btn btn-outline-primary w-100" (click)="register()">Register</button>
+      </div>
+      <div class="col-4">
+        <button class="btn btn-secondary w-100" (click)="clearForm()">Clear</button>
       </div>
     </div>
   </form>
-  <p class="text-left mt-3">Already have an account? <a routerLink="/login">Login</a></p>
+  <p class="text-left mt-3">Already have an account ? <a routerLink="/login">Login here!</a></p>
 </div>

@@ -5,6 +5,11 @@
  * Copyright 2011-2020 Twitter, Inc.
  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
  */
+.asterik:after {
+  content: " *";
+  color: red;
+}
+
 :root {
   --blue: #007bff;
   --indigo: #6610f2;
@@ -2211,7 +2216,7 @@ pre code {
 .form-control:focus {
   color: #495057;
   background-color: #fff;
-  border-color: #ffefb3;
+  border-color: #79c9ff;
   outline: 0;
   box-shadow: none;
 }

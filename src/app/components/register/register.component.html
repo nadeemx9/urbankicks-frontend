@@ -1,27 +1,80 @@
 <div class="register-container">
   <h3 class="text-center mb-4">Register</h3>
   <form>
-    <div class="mb-3">
-      <label for="name" class="form-label">Full Name</label>
-      <input type="text" class="form-control" id="name" placeholder="Enter your full name">
+    <div class="mb-2 row">
+      <div class="col-6">
+        <label for="fname" class="form-label asterik">First name</label>
+        <input type="text" class="form-control" id="fname" placeholder="Enter first name">
+      </div>
+      <div class="col-6">
+        <label for="lname" class="form-label asterik">Last name</label>
+        <input type="text" class="form-control" id="lname" placeholder="Enter last name">
+      </div>
     </div>
-    <div class="mb-3">
-      <label for="email" class="form-label">Email address</label>
-      <input type="email" class="form-control" id="email" placeholder="Enter your email">
+    <div class="mb-2 row">
+      <div class="col-6">
+        <label for="email" class="form-label asterik">Email address</label>
+        <input type="email" class="form-control" id="email" placeholder="Enter email">
+      </div>
+      <div class="col-6">
+        <label for="mobile" class="form-label">Mobile No.</label>
+        <input type="text" class="form-control" id="mobile" placeholder="Enter mobile no">
+      </div>
     </div>
-    <div class="mb-3">
-      <label for="password" class="form-label">Password</label>
-      <input type="password" class="form-control" id="password" placeholder="Password">
+    <div class="mb-2 row">
+      <div class="col-6">
+        <label for="password" class="form-label asterik">Password</label>
+        <input type="password" class="form-control" id="password" placeholder="Password">
+      </div>
+      <div class="col-6">
+        <label for="cpassword" class="form-label asterik">Confirm Password</label>
+        <input type="password" class="form-control" id="cpassword" placeholder="Confirm Password">
+      </div>
     </div>
-    <div class="mb-3">
-      <label for="confirm-password" class="form-label">Confirm Password</label>
-      <input type="password" class="form-control" id="confirm-password" placeholder="Confirm your password">
+    <div class="mb-2 row">
+      <div class="col">
+        <label for="address" class="form-label asterik">Address</label>
+        <textarea class="form-control" id="address" rows="3" placeholder="Enter address"></textarea>
+      </div>
     </div>
-    <div class="mb-3 form-check">
-      <input type="checkbox" class="form-check-input" id="agreeTerms">
-      <label class="form-check-label" for="agreeTerms">I agree to the terms and conditions</label>
+    <div class="mb-2 row">
+      <div class="col-6">
+        <label for="state" class="form-label asterik">State</label>
+        <select class="form-control" id="state" aria-label="Select State" (change)="onStateSelect($event)">
+          <option value="">Select State</option>
+          <option *ngFor="let state of states" [value]="state?.stateId">
+            {{state?.stateName}}</option>
+        </select>
+      </div>
+      <div class="col-6">
+        <label for="district" class="form-label asterik">District</label>
+        <select class="form-control" id="district" aria-label="Select District">
+          <option value="" selected>Select District</option>
+          <option *ngFor="let district of districts" [value]="district?.districtId">{{district?.districtName}}</option>
+        </select>
+      </div>
     </div>
-    <button type="submit" class="btn btn-primary w-100">Register</button>
+    <div class="mb-2 row">
+      <div class="col-8">
+        <label for="city" class="form-label asterik">City</label>
+        <input type="text" class="form-control" id="city" placeholder="Enter city">
+      </div>
+      <div class="col-4">
+        <label for="postal" class="form-label asterik">Postal Code</label>
+        <input type="text" class="form-control" id="postal" placeholder="Enter postal code">
+      </div>
+    </div>
+    <div class="mb-2 row form-check">
+      <div class="col-12">
+        <input type="checkbox" class="form-check-input" id="agreeTerms">
+        <label class="form-check-label asterik" for="agreeTerms">I agree to the terms and conditions</label>
+      </div>
+    </div>
+    <div class="mb-2 row">
+      <div class="col-12">
+        <button type="submit" class="btn btn-primary w-100">Register</button>
+      </div>
+    </div>
   </form>
-  <p class="text-center mt-3">Already have an account? <a routerLink="/login">Login</a></p>
+  <p class="text-left mt-3">Already have an account? <a routerLink="/login">Login</a></p>
 </div>

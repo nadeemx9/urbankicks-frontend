@@ -2,14 +2,14 @@
   <h3 class="text-center mb-4">Login</h3>
   <form [formGroup]="loginForm">
     <div class="mb-3">
-      <label for="username" class="form-label">Username :</label>
+      <label for="username" class="form-label asterik">Username</label>
       <input type="text" class="form-control mb-2" id="username" placeholder="Enter username"
         formControlName="username">
       <span *ngIf="this.loginForm.get('username')?.touched && this.loginForm.get('username')?.hasError('required')"
         class="text-danger">Enter valid email</span>
     </div>
     <div class="mb-3">
-      <label for="password" class="form-label">Password :</label>
+      <label for="password" class="form-label asterik">Password</label>
       <input type="password" class="form-control mb-2" id="password" placeholder="Enter Password" formControlName="password">
       <span *ngIf="this.loginForm.get('password')?.touched && this.loginForm.get('password')?.hasError('required')"
         class="text-danger">Enter valid password</span>

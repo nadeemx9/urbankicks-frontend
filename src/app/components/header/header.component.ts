@@ -23,19 +23,17 @@ export class HeaderComponent {
 
   subscription: Subscription = new Subscription
 
-  isLoggedIn: boolean = false; // Track login state
+  isLoggedIn: boolean = false;
 
   constructor(
     private titleService: Title,
     private commonService: CommonService,
-    private authSerice: AuthService,
     private router: Router,
     private authService: AuthService
   ) {
     titleService.setTitle('UrbanKicks - Kick It!')
   }
   ngOnInit(): void {
-    // Subscribe to login state changes
     this.subscription.add(
       this.authService.isLoggedIn().subscribe((loggedIn: boolean) => {
         this.isLoggedIn = loggedIn; // Update isLoggedIn property
@@ -87,7 +85,8 @@ export class HeaderComponent {
   }
 
   logout() {
-    this.authSerice.logout();
+    this.authService.logout();
+    this.router.navigate(['/login']);
   }
 
   ngOnDestroy(): void {

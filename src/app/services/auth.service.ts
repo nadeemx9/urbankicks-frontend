@@ -48,11 +48,6 @@ export class AuthService {
   logout(): void {
     localStorage.removeItem('token');
     this.loggedIn.next(false); // Update loggedIn state
-    this.router.navigate(['/login']); // Navigate to login after logout
-  }
-
-  test() {
-    this.http.get(`${this.afterLoginUrl}/test`).subscribe({
-    })
+    this.http.get(`${this.afterLoginUrl}/logout`).subscribe({})
   }
 }

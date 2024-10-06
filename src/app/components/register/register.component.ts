@@ -6,8 +6,6 @@ import { Router, RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 import { CommonService } from '../../services/common.service';
-import { HTTP_INTERCEPTORS } from '@angular/common/http';
-import { AuthInterceptor } from '../../auth/auth.interceptor';
 
 @Component({
   selector: 'app-register',
@@ -39,7 +37,7 @@ export class RegisterComponent implements OnInit, OnDestroy {
     titleService.setTitle('UrbanKicks - Register')
 
     this.registerForm = this.fb.group({
-      fname: [''],
+      fname: ['', Validators.required],
       lname: ['', Validators.required],
       email: ['', Validators.required],
       mobile: [null],

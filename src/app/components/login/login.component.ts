@@ -5,6 +5,7 @@ import { Title } from '@angular/platform-browser';
 import { Router, RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
+import { log } from 'console';
 
 @Component({
   selector: 'app-login',

@@ -46,8 +46,8 @@ export class AuthService {
   }
 
   logout(): void {
+    this.http.get(`${this.afterLoginUrl}/logout`).subscribe({})
     localStorage.removeItem('token');
     this.loggedIn.next(false); // Update loggedIn state
-    this.http.get(`${this.afterLoginUrl}/logout`).subscribe({})
   }
 }

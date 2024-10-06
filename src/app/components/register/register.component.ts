@@ -2,9 +2,12 @@ import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidatorFn, Validators } from '@angular/forms';
 import { Title } from '@angular/platform-browser';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { AuthService } from '../../services/auth.service';
 import { CommonService } from '../../services/common.service';
+import { HTTP_INTERCEPTORS } from '@angular/common/http';
+import { AuthInterceptor } from '../../auth/auth.interceptor';
 
 @Component({
   selector: 'app-register',
@@ -29,20 +32,22 @@ export class RegisterComponent implements OnInit, OnDestroy {
   constructor(
     private titleService: Title,
     private commonService: CommonService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private authService: AuthService,
+    private router: Router
   ) {
     titleService.setTitle('UrbanKicks - Register')
 
     this.registerForm = this.fb.group({
-      fname: ['', Validators.required],
+      fname: [''],
       lname: ['', Validators.required],
       email: ['', Validators.required],
-      mobile: [''],
+      mobile: [null],
       password: ['', Validators.required],
       cpassword: ['', Validators.required],
       address: ['', Validators.required],
-      stateId: [null, Validators.required],
-      districtId: [null, Validators.required],
+      stateId: ['', Validators.required],
+      districtId: ['', Validators.required],
       city: ['', Validators.required],
       postal: ['', Validators.required]
     }, {
@@ -50,18 +55,54 @@ export class RegisterComponent implements OnInit, OnDestroy {
     });
   }
 
-  register() {
-    console.log(this.registerForm?.value);
-    this.registerForm.markAllAsTouched();
-
-    if (this.registerForm.valid) {
-
-    } else this.focusFirstInvalidControl();
-  }
 
   ngOnInit(): void {
     this.goToTop()
     this.getStates();
+  }
+
+
+  register() {
+    this.registerForm.markAllAsTouched();
+    if (this.registerForm.valid) {
+      const payload = this.registerForm.value;
+      this.subscription.add(
+        this.authService.register(payload).subscribe({
+          next: (resp: any) => {
+            console.log("Register Success >>>");
+            this.router.navigate(['/login']);
+          },
+          error: (err: any) => {
+            console.log(err);
+            if (err?.error?.status === 400 && err?.error?.respCode === "VALIDATION_ERROR") {
+              this.handleValidationErrors(err?.error?.errors);
+            } else {
+            }
+          }
+        })
+      );
+    } else this.focusFirstInvalidControl();
+  }
+
+  private handleValidationErrors(errors: any) {
+    for (const field in errors) {
+      if (errors.hasOwnProperty(field)) {
+        const errorCode = errors[field];
+        const control = this.registerForm.get(field);
+        if (control) {
+          switch (errorCode) {
+            case '101':
+              control.setErrors({ required: true });
+              break;
+            case '102':
+              control.setErrors({ required: true });
+              break;
+            default:
+              control.setErrors({ unknownError: true });
+          }
+        }
+      }
+    }
   }
 
   getStates() {
@@ -92,7 +133,7 @@ export class RegisterComponent implements OnInit, OnDestroy {
   onStateSelect(event: any) {
     const selectedStateId = event.target.value;
     this.districts = [];
-    this.registerForm.get('districtId')?.setValue(null); // Resetting the districtId to default value
+    this.registerForm.get('districtId')?.setValue(''); // Resetting the districtId to default value
     if (selectedStateId) {
       this.getDistricts(selectedStateId);
     }
@@ -128,20 +169,18 @@ export class RegisterComponent implements OnInit, OnDestroy {
   }
 
   clearForm() {
-    // this.registerForm.markAsUntouched();
-    // this.registerForm.get('fname')?.setValue('')
-    // this.registerForm.get('lname')?.setValue('')
-    // this.registerForm.get('email')?.setValue('')
-    // this.registerForm.get('mobile')?.setValue('')
-    // this.registerForm.get('password')?.setValue('')
-    // this.registerForm.get('cpassword')?.setValue('')
-    // this.registerForm.get('address')?.setValue('')
-    // this.registerForm.get('stateId')?.setValue('')
-    // this.registerForm.get('districtId')?.setValue('')
-    // this.registerForm.get('city')?.setValue('')
-    // this.registerForm.get('postal')?.setValue('')
-
-    this.registerForm.reset();
+    this.registerForm.markAsUntouched();
+    this.registerForm.get('fname')?.setValue('')
+    this.registerForm.get('lname')?.setValue('')
+    this.registerForm.get('email')?.setValue('')
+    this.registerForm.get('mobile')?.setValue('')
+    this.registerForm.get('password')?.setValue('')
+    this.registerForm.get('cpassword')?.setValue('')
+    this.registerForm.get('address')?.setValue('')
+    this.registerForm.get('stateId')?.setValue('')
+    this.registerForm.get('districtId')?.setValue('')
+    this.registerForm.get('city')?.setValue('')
+    this.registerForm.get('postal')?.setValue('')
     this.goToTop();
   }
 

@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
-import { log } from 'console';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-cart',
@@ -14,9 +14,11 @@ import { log } from 'console';
 export class CartComponent {
 
   constructor(
-    titleService : Title
-  ){
+    titleService: Title,
+    private authService: AuthService
+  ) {
     titleService.setTitle('UrbanKicks - Cart')
+    this.authService.test();
   }
 
 }

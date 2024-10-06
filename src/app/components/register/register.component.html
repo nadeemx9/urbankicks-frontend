@@ -71,7 +71,7 @@
         <label for="state" class="form-label asterik">State</label>
         <select class="form-control" id="state" aria-label="Select State" (change)="onStateSelect($event)"
           formControlName="stateId">
-          <option [value]="null" selected>Select State</option>
+          <option value="" selected>Select State</option>
           <option *ngFor="let state of states" [value]="state?.stateId">{{state?.stateName}}
           </option>
         </select>
@@ -82,7 +82,7 @@
       <div class="col-6">
         <label for="district" class="form-label asterik">District</label>
         <select class="form-control" id="district" aria-label="Select District" formControlName="districtId">
-          <option [value]="null" selected>Select District</option>
+          <option value="" selected>Select District</option>
           <option *ngFor="let district of districts" [value]="district?.districtId">
             {{district?.districtName}}</option>
         </select>

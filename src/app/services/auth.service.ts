@@ -9,13 +9,14 @@ import { BehaviorSubject, Observable } from 'rxjs';
 export class AuthService {
 
   private baseUrl = 'http://localhost:8080/api/auth'
+  private afterLoginUrl = 'http://localhost:8080/api/user'
 
   // Subject to track login state
   private loggedIn = new BehaviorSubject<boolean>(this.checkLoginStatus());
 
   constructor(
     private http: HttpClient,
-    private router : Router
+    private router: Router
   ) { }
 
 
@@ -23,6 +24,9 @@ export class AuthService {
     return this.http.post(`${this.baseUrl}/authenticate`, payload);
   }
 
+  register(payload: any) {
+    return this.http.post(`${this.baseUrl}/register`, payload)
+  }
   storeToken(token: string): void {
     localStorage.setItem('token', token);
     this.loggedIn.next(true); // Set loggedIn to true when token is stored
@@ -45,5 +49,10 @@ export class AuthService {
     localStorage.removeItem('token');
     this.loggedIn.next(false); // Update loggedIn state
     this.router.navigate(['/login']); // Navigate to login after logout
+  }
+
+  test() {
+    this.http.get(`${this.afterLoginUrl}/test`).subscribe({
+    })
   }
 }

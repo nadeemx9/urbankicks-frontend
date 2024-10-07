@@ -1,0 +1,6 @@
+<div *ngIf="showAlert" [ngClass]="'alert alert-' + alertType + ' alert-dismissible fade show'" role="alert">
+  <p>{{ alertMessage }}</p>
+  <button type="button" class="close" (click)="showAlert = false" aria-label="Close">
+    <i class="fas fa-times"></i>
+  </button>
+</div>

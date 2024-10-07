@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { Title } from '@angular/platform-browser';
-import { Router, RouterModule } from '@angular/router';
+import { NavigationExtras, Router, RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 import { CommonService } from '../../services/common.service';
@@ -36,7 +36,7 @@ export class HeaderComponent {
   ngOnInit(): void {
     this.subscription.add(
       this.authService.isLoggedIn().subscribe((loggedIn: boolean) => {
-        this.isLoggedIn = loggedIn; // Update isLoggedIn property
+        this.isLoggedIn = loggedIn;
       })
     );
 
@@ -86,7 +86,12 @@ export class HeaderComponent {
 
   logout() {
     this.authService.logout();
-    this.router.navigate(['/login']);
+    const navigationExtras: NavigationExtras = {
+      state: {
+        alert: { type: 'warning', message: 'Logout Success' }
+      }
+    };
+    this.router.navigate(['login'], navigationExtras)
   }
 
   ngOnDestroy(): void {

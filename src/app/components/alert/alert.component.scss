@@ -1,0 +1,36 @@
+.alert {
+  position: relative;
+  padding: 1.25rem 1.5rem; // Increase padding for better spacing
+  border-radius: 0.5rem; // Rounded corners
+  margin-bottom: 1rem; // Space below the alert
+
+  &.alert-danger {
+    background-color: #f8d7da; // Light red background
+    color: #721c24; // Dark red text
+  }
+
+  &.alert-success {
+    background-color: #d4edda; // Light green background
+    color: #155724; // Dark green text
+  }
+
+  .close {
+    position: absolute; // Positioning close button
+    top: 50%; // Centering vertically
+    right: 1rem; // Aligning close button horizontally
+    transform: translateY(-50%); // Adjusting for exact vertical center
+    border: none; // Remove border for a cleaner look
+    background: none; // Remove background for cleaner look
+    font-size: 1.25rem; // Increase size of the close icon if needed
+    color: inherit; // Inherit color from the alert
+    cursor: pointer; // Pointer cursor for better UX
+  }
+
+  p {
+    margin-bottom: 0; // No margin for paragraph
+  }
+
+  strong {
+    font-weight: bold; // Bold text for success or error
+  }
+}

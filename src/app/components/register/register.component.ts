@@ -2,10 +2,11 @@ import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidatorFn, Validators } from '@angular/forms';
 import { Title } from '@angular/platform-browser';
-import { Router, RouterModule } from '@angular/router';
+import { NavigationExtras, Router, RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 import { CommonService } from '../../services/common.service';
+import { AlertComponent } from '../alert/alert.component';
 
 @Component({
   selector: 'app-register',
@@ -13,7 +14,8 @@ import { CommonService } from '../../services/common.service';
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    RouterModule
+    RouterModule,
+    AlertComponent
   ],
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss'
@@ -26,6 +28,10 @@ export class RegisterComponent implements OnInit, OnDestroy {
   registerForm: FormGroup;
 
   subscription: Subscription = new Subscription
+
+  showAlert: boolean = false;
+  alertType: string = ''; // 'success' or 'danger'
+  alertMessage: string = '';
 
   constructor(
     private titleService: Title,
@@ -67,19 +73,27 @@ export class RegisterComponent implements OnInit, OnDestroy {
       this.subscription.add(
         this.authService.register(payload).subscribe({
           next: (resp: any) => {
-            console.log("Register Success >>>");
-            this.router.navigate(['/login']);
+            const navigationExtras: NavigationExtras = {
+              state: {
+                alert: { type: 'success', message: 'Register Success' }
+              }
+            };
+            this.router.navigate(['login'], navigationExtras)
           },
           error: (err: any) => {
             console.log(err);
             if (err?.error?.status === 400 && err?.error?.respCode === "VALIDATION_ERROR") {
               this.handleValidationErrors(err?.error?.errors);
             } else {
+              console.log(err);
             }
           }
         })
       );
-    } else this.focusFirstInvalidControl();
+    } else {
+      this.focusFirstInvalidControl();
+      this.alert('danger', 'Please fill required fields');
+    }
   }
 
   private handleValidationErrors(errors: any) {
@@ -155,6 +169,16 @@ export class RegisterComponent implements OnInit, OnDestroy {
     if (invalidControl) {
       invalidControl.focus();
     }
+    this.goToTop();
+  }
+
+  alert(type: 'success' | 'danger', message: string) {
+    this.alertMessage = message;
+    this.alertType = type;
+    this.showAlert = true;
+    setTimeout(() => {
+      this.showAlert = false;
+    }, 2000);
     this.goToTop();
   }
 

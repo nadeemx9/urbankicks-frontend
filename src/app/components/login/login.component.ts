@@ -5,7 +5,7 @@ import { Title } from '@angular/platform-browser';
 import { Router, RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
-import { log } from 'console';
+import { AlertComponent } from '../alert/alert.component';
 
 @Component({
   selector: 'app-login',
@@ -13,7 +13,8 @@ import { log } from 'console';
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    RouterModule
+    RouterModule,
+    AlertComponent
   ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss'
@@ -22,6 +23,9 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   loginForm: FormGroup
   subscription: Subscription = new Subscription
+  showAlert: boolean = false;
+  alertType: string = ''; // 'success' or 'danger'
+  alertMessage: string = '';
 
   constructor(
     private fb: FormBuilder,
@@ -35,6 +39,12 @@ export class LoginComponent implements OnInit, OnDestroy {
       email: ['', Validators.required],
       password: ['', Validators.required]
     })
+
+    const navigation = this.router.getCurrentNavigation();
+    if (navigation?.extras?.state && navigation.extras.state['alert']) {
+      const alert = navigation.extras.state['alert'];
+      this.alert(alert?.type, alert?.message)
+    }
   }
 
   ngOnInit(): void {
@@ -49,19 +59,24 @@ export class LoginComponent implements OnInit, OnDestroy {
         this.authService.authenticate(payload).subscribe({
           next: (resp: any) => {
             this.authService.storeToken(resp.token);
-            this.router.navigate(['']);
+            this.alert('success', 'Login Success')
+            setTimeout(() => {
+              this.router.navigate(['']);
+            }, 1500);
           },
           error: (err: any) => {
             if (err?.error?.status === 400 && err?.error?.respCode === "VALIDATION_ERROR") {
               this.handleValidationErrors(err?.error?.errors);
-            } else {
+            } else if (err?.error?.status === 401 && err?.error?.respCode === "BAD_CREDENTIALS") {
+              this.alert('danger', 'Bad Credentials');
+            } else
               console.log(err);
-            }
           }
         })
       );
     } else {
       this.focusFirstInvalidControl();
+      this.alert('danger', 'Please fill required fields');
     }
   }
 
@@ -84,6 +99,16 @@ export class LoginComponent implements OnInit, OnDestroy {
         }
       }
     }
+  }
+
+  alert(type: 'success' | 'danger', message: string) {
+    this.alertMessage = message;
+    this.alertType = type;
+    this.showAlert = true;
+    setTimeout(() => {
+      this.showAlert = false;
+    }, 2000);
+    this.goToTop();
   }
 
 

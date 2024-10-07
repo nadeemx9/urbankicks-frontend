@@ -142,7 +142,7 @@
               <span class="badge text-secondary border border-secondary rounded-circle"
                 style="padding-bottom: 2px;" *ngIf="isLoggedIn" >0</span>
             </a>
-            <a (click)="logout()" class="btn px-0 ml-3" *ngIf="isLoggedIn">
+            <a (click)="openModal()" class="btn px-0 ml-3" *ngIf="isLoggedIn">
               <i class="fa fa-times text-primary mx-1 fa-lg"></i>
             </a>
           </div>
@@ -152,3 +152,11 @@
   </div>
 </div>
 <!-- Navbar End -->
+<app-modal *ngIf="isModalOpen"
+[isOpen]="isModalOpen"
+[title]="'Logout'"
+[body]="'Are you sure want to logout ?'"
+(confirm)="logout()"
+(closeModal)="closeModal()"
+>
+</app-modal>

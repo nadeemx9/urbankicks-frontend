@@ -5,14 +5,16 @@ import { NavigationExtras, Router, RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 import { CommonService } from '../../services/common.service';
+import { ModalComponent } from "../modal/modal.component";
 
 @Component({
   selector: 'app-header',
   standalone: true,
   imports: [
     RouterModule,
-    CommonModule
-  ],
+    CommonModule,
+    ModalComponent
+],
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss'
 })
@@ -24,6 +26,8 @@ export class HeaderComponent {
   subscription: Subscription = new Subscription
 
   isLoggedIn: boolean = false;
+
+  isModalOpen : boolean = false;
 
   constructor(
     private titleService: Title,
@@ -92,6 +96,14 @@ export class HeaderComponent {
       }
     };
     this.router.navigate(['login'], navigationExtras)
+  }
+
+  openModal() {
+    this.isModalOpen = true;
+  }
+
+  closeModal() {
+    this.isModalOpen = false;
   }
 
   ngOnDestroy(): void {

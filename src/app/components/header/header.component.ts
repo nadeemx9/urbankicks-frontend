@@ -3,6 +3,7 @@ import { Component } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { NavigationExtras, Router, RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { AuthenticatedUser } from '../../models/AuthenticatedUser';
 import { AuthService } from '../../services/auth.service';
 import { CommonService } from '../../services/common.service';
 import { ModalComponent } from "../modal/modal.component";
@@ -14,7 +15,7 @@ import { ModalComponent } from "../modal/modal.component";
     RouterModule,
     CommonModule,
     ModalComponent
-],
+  ],
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss'
 })
@@ -25,9 +26,9 @@ export class HeaderComponent {
 
   subscription: Subscription = new Subscription
 
-  isLoggedIn: boolean = false;
+  authenticatedUser: AuthenticatedUser | null = null;
 
-  isModalOpen : boolean = false;
+  isModalOpen: boolean = false;
 
   constructor(
     private titleService: Title,
@@ -39,8 +40,8 @@ export class HeaderComponent {
   }
   ngOnInit(): void {
     this.subscription.add(
-      this.authService.isLoggedIn().subscribe((loggedIn: boolean) => {
-        this.isLoggedIn = loggedIn;
+      this.authService.getCurrentUser().subscribe(user => {
+        this.authenticatedUser = user;
       })
     );
 

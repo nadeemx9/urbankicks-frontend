@@ -95,6 +95,7 @@ export class HeaderComponent {
         alert: { type: 'warning', message: 'Logout Success' }
       }
     };
+    this.closeModal();
     this.router.navigate(['login'], navigationExtras)
   }
 

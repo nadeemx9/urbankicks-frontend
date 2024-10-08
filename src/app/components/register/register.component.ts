@@ -30,7 +30,7 @@ export class RegisterComponent implements OnInit, OnDestroy {
   subscription: Subscription = new Subscription
 
   showAlert: boolean = false;
-  alertType: string = ''; // 'success' or 'danger'
+  alertType: string = '';
   alertMessage: string = '';
 
   constructor(
@@ -142,6 +142,7 @@ export class RegisterComponent implements OnInit, OnDestroy {
       })
     );
   }
+
   onStateSelect(event: any) {
     const selectedStateId = event.target.value;
     this.districts = [];

@@ -24,6 +24,14 @@ export class CommonService {
     return this.http.get(`${this.baseUrl}/get-categories-section`);
   }
 
+  getCategoriesByGender(genderId: any) {
+    return this.http.get(`${this.baseUrl}/get-categories-by-gender/${genderId}`);
+  }
+
+  getCollectionsByBrand(brandId: any) {
+    return this.http.get(`${this.baseUrl}/get-collections-by-brand/${brandId}`);
+  }
+
   getGenders() {
     return this.http.get(`${this.baseUrl}/get-genders`);
   }

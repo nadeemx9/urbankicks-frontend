@@ -9,6 +9,7 @@ import { ProductDetailComponent } from './components/product-detail/product-deta
 import { RegisterComponent } from './components/register/register.component';
 import { ShopComponent } from './components/shop/shop.component';
 import { AuthGuard } from './auth/auth.guard';
+import { AddProductComponent } from './components/add-product/add-product.component';
 
 
 export const routes: Routes = [
@@ -47,5 +48,9 @@ export const routes: Routes = [
   {
     path: 'register',
     component: RegisterComponent
+  },
+  {
+    path: 'add-product',
+    component: AddProductComponent
   }
 ];

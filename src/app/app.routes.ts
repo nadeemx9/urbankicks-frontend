@@ -1,5 +1,7 @@
 import { Routes } from '@angular/router';
+import { AuthGuard } from './auth/auth.guard';
 import { AccountComponent } from './components/account/account.component';
+import { AddProductComponent } from './components/add-product/add-product.component';
 import { CartComponent } from './components/cart/cart.component';
 import { CheckoutComponent } from './components/checkout/checkout.component';
 import { ContactComponent } from './components/contact/contact.component';
@@ -8,8 +10,6 @@ import { LoginComponent } from './components/login/login.component';
 import { ProductDetailComponent } from './components/product-detail/product-detail.component';
 import { RegisterComponent } from './components/register/register.component';
 import { ShopComponent } from './components/shop/shop.component';
-import { AuthGuard } from './auth/auth.guard';
-import { AddProductComponent } from './components/add-product/add-product.component';
 
 
 export const routes: Routes = [
@@ -51,6 +51,6 @@ export const routes: Routes = [
   },
   {
     path: 'add-product',
-    component: AddProductComponent
+    component: AddProductComponent, canActivate: [AuthGuard]
   }
 ];

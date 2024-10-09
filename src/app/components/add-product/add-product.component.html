@@ -78,24 +78,23 @@
 
     <div class="mb-3 row">
       <div class="col-6">
-        <label for="sizeId" class="form-label asterik">Size</label>
-        <select class="form-control" id="sizeId" formControlName="sizeId">
-          <option value="" selected>Select Size</option>
-          <option *ngFor="let size of sizes" [value]="size?.sizeId">{{size?.size}}</option>
-        </select>
-        <span *ngIf="this.productForm.get('sizeId')?.touched && this.productForm.get('sizeId')?.hasError('required')"
-          class="text-danger">Please select size</span>
-      </div>
-
-      <div class="col-6">
         <label for="colorId" class="form-label asterik">Color</label>
         <select class="form-control" id="colorId" formControlName="colorId">
           <option value="">Select Color</option>
           <option *ngFor="let color of colors" [value]="color?.colorId">
-            {{color?.color}}</option>
+            {{color?.colorName}}</option>
         </select>
         <span *ngIf="this.productForm.get('colorId')?.touched && this.productForm.get('colorId')?.hasError('required')"
           class="text-danger">Please select color</span>
+      </div>
+      <div class="col-6">
+        <label for="sizeId" class="form-label asterik">Size</label>
+        <select class="form-control" id="sizeId" formControlName="sizeId">
+          <option value="" selected>Select Size</option>
+          <option *ngFor="let size of sizes" [value]="size?.sizeId">{{size?.sizeName}}</option>
+        </select>
+        <span *ngIf="this.productForm.get('sizeId')?.touched && this.productForm.get('sizeId')?.hasError('required')"
+          class="text-danger">Please select size</span>
       </div>
     </div>
 

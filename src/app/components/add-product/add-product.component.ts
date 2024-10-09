@@ -52,6 +52,8 @@ export class AddProductComponent implements OnInit, OnDestroy {
     this.goToTop()
     this.getBrands();
     this.getGenders();
+    this.getColors();
+    this.getSizes();
   }
 
   addProduct() {
@@ -108,6 +110,32 @@ export class AddProductComponent implements OnInit, OnDestroy {
       this.commonService.getGenders().subscribe({
         next: (resp: any) => {
           this.genders = resp?.data
+        },
+        error: (err: any) => {
+          console.error(err);
+        }
+      })
+    );
+  }
+
+  getColors() {
+    this.subscription.add(
+      this.commonService.getColors().subscribe({
+        next: (resp: any) => {
+          this.colors = resp?.data
+        },
+        error: (err: any) => {
+          console.error(err);
+        }
+      })
+    );
+  }
+
+  getSizes() {
+    this.subscription.add(
+      this.commonService.getSizes().subscribe({
+        next: (resp: any) => {
+          this.sizes = resp?.data
         },
         error: (err: any) => {
           console.error(err);

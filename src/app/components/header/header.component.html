@@ -116,7 +116,8 @@
         <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
           <div class="navbar-nav mr-auto py-0">
             <div class="nav-item dropdown">
-              <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Utilities <i
+              <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown"
+                *ngIf="authenticatedUser && authenticatedUser.role == 'ADMIN'">Utilities <i
                   class="fa fa-angle-down mt-1"></i></a>
               <div class="dropdown-menu bg-secondary rounded-0 border-0 m-0">
                 <a href="javascript:void" routerLink="/add-product" class="dropdown-item">Add-Product</a>

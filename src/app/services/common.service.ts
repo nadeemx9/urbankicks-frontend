@@ -47,4 +47,12 @@ export class CommonService {
   getDistricts(stateId: any) {
     return this.http.get(`${this.baseUrl}/get-districts/${stateId}`);
   }
+
+  getColors() {
+    return this.http.get(`${this.baseUrl}/get-colors`);
+  }
+
+  getSizes() {
+    return this.http.get(`${this.baseUrl}/get-sizes`);
+  }
 }

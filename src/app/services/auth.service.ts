@@ -4,6 +4,8 @@ import { Router } from '@angular/router';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { AuthenticatedUser } from '../models/AuthenticatedUser';
+import { log } from 'node:console';
+import e from 'express';
 
 @Injectable({
   providedIn: 'root'
@@ -19,7 +21,9 @@ export class AuthService {
   constructor(
     private http: HttpClient,
     private router: Router
-  ) { }
+  ) {
+    this.loadUserFromToken();
+  }
 
   // Authenticate user and fetch user details
   authenticate(payload: any): Observable<any> {
@@ -56,17 +60,21 @@ export class AuthService {
         localStorage.removeItem('token');
         this.currentUserSubject.next(null); // Clear the current user
         this.router.navigate(['/login']); // Navigate to login page
+      },
+      error: (err: any) => {
+        console.log(err);
       }
     });
   }
 
   // Fetch user details from the server
   fetchUserDetails(): void {
-    this.http.get<AuthenticatedUser>(`${this.baseUrl}/me`).subscribe({
+    this.http.get<AuthenticatedUser>(`${this.afterLoginUrl}/me`).subscribe({
       next: user => {
         this.currentUserSubject.next(user); // Update current user state
       },
-      error: () => {
+      error: (err: any) => {
+        console.log('error while fetchUserDetails() >>>' + err);
         this.currentUserSubject.next(null); // Handle error, clear user
       }
     });
@@ -75,5 +83,13 @@ export class AuthService {
   // Expose current user as an observable
   getCurrentUser(): Observable<AuthenticatedUser | null> {
     return this.currentUserSubject.asObservable();
+  }
+
+  // Restore user from token after page reload
+  private loadUserFromToken(): void {
+    const token = this.getToken();
+    if (token) {
+      this.fetchUserDetails(); // Fetch user details if token exists
+    }
   }
 }

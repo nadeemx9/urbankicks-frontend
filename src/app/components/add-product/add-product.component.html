@@ -1,23 +1,25 @@
 <div class="create-product-container">
-
   <app-alert [showAlert]="showAlert" [alertType]="alertType" [alertMessage]="alertMessage"></app-alert>
 
   <h3 class="text-center mb-4">Create Product</h3>
-  <form [formGroup]="productForm">
+  <form [formGroup]="productForm" (ngSubmit)="addProduct()">
     <div class="mb-3 row">
       <div class="col-6">
         <label for="productName" class="form-label asterik">Product Name</label>
         <input type="text" class="form-control" id="productName" placeholder="Enter product name"
           formControlName="productName">
-        <span
-          *ngIf="this.productForm.get('productName')?.touched && this.productForm.get('productName')?.hasError('required')"
-          class="text-danger">Product name is required</span>
+        <span *ngIf="productForm.get('productName')?.touched && productForm.get('productName')?.hasError('required')"
+          class="text-danger">
+          Product name is required
+        </span>
       </div>
       <div class="col-6">
         <label for="title" class="form-label asterik">Title</label>
         <input type="text" class="form-control" id="title" placeholder="Enter title" formControlName="title">
-        <span *ngIf="this.productForm.get('title')?.touched && this.productForm.get('title')?.hasError('required')"
-          class="text-danger">Title is required</span>
+        <span *ngIf="productForm.get('title')?.touched && productForm.get('title')?.hasError('required')"
+          class="text-danger">
+          Title is required
+        </span>
       </div>
     </div>
 
@@ -26,9 +28,10 @@
         <label for="description" class="form-label asterik">Description</label>
         <textarea class="form-control" id="description" rows="3" placeholder="Enter product description"
           formControlName="description"></textarea>
-        <span
-          *ngIf="this.productForm.get('description')?.touched && this.productForm.get('description')?.hasError('required')"
-          class="text-danger">Description is required</span>
+        <span *ngIf="productForm.get('description')?.touched && productForm.get('description')?.hasError('required')"
+          class="text-danger">
+          Description is required
+        </span>
       </div>
     </div>
 
@@ -37,21 +40,24 @@
         <label for="gender" class="form-label asterik">Gender</label>
         <select class="form-control" id="gender" formControlName="genderId" (change)="onGenderSelect($event)">
           <option value="" selected>Select Gender</option>
-          <option *ngFor="let gender of genders" [value]="gender?.genderId">{{gender?.genderName}}</option>
+          <option *ngFor="let gender of genders" [value]="gender?.genderId">{{ gender?.genderName }}</option>
         </select>
-        <span
-          *ngIf="this.productForm.get('genderId')?.touched && this.productForm.get('genderId')?.hasError('required')"
-          class="text-danger">Please select gender</span>
+        <span *ngIf="productForm.get('genderId')?.touched && productForm.get('genderId')?.hasError('required')"
+          class="text-danger">
+          Please select gender
+        </span>
       </div>
       <div class="col-6">
         <label for="category" class="form-label asterik">Category</label>
         <select class="form-control" id="category" formControlName="categoryId">
           <option value="" selected>Select Category</option>
-          <option *ngFor="let category of categories" [value]="category?.categoryId">{{category?.categoryName}}</option>
+          <option *ngFor="let category of categories" [value]="category?.categoryId">{{ category?.categoryName }}
+          </option>
         </select>
-        <span
-          *ngIf="this.productForm.get('categoryId')?.touched && this.productForm.get('categoryId')?.hasError('required')"
-          class="text-danger">Please select a category</span>
+        <span *ngIf="productForm.get('categoryId')?.touched && productForm.get('categoryId')?.hasError('required')"
+          class="text-danger">
+          Please select a category
+        </span>
       </div>
     </div>
 
@@ -60,18 +66,19 @@
         <label for="brandId" class="form-label asterik">Brand</label>
         <select class="form-control" id="brand" formControlName="brandId" (change)="onBrandSelect($event)">
           <option value="" selected>Select Brand</option>
-          <option *ngFor="let brand of brands" [value]="brand?.brandId">{{brand?.brandName}}</option>
+          <option *ngFor="let brand of brands" [value]="brand?.brandId">{{ brand?.brandName }}</option>
         </select>
-        <span *ngIf="this.productForm.get('brandId')?.touched && this.productForm.get('brandId')?.hasError('required')"
-          class="text-danger">Please select a brand</span>
+        <span *ngIf="productForm.get('brandId')?.touched && productForm.get('brandId')?.hasError('required')"
+          class="text-danger">
+          Please select a brand
+        </span>
       </div>
-
       <div class="col-6">
         <label for="collection" class="form-label">Collection (Optional)</label>
         <select class="form-control" id="collection" formControlName="collectionId">
           <option value="">Select Collection</option>
-          <option *ngFor="let collection of collections" [value]="collection?.collectionId">
-            {{collection?.collectionName}}</option>
+          <option *ngFor="let collection of collections" [value]="collection?.collectionId">{{
+            collection?.collectionName }}</option>
         </select>
       </div>
     </div>
@@ -80,21 +87,24 @@
       <div class="col-6">
         <label for="colorId" class="form-label asterik">Color</label>
         <select class="form-control" id="colorId" formControlName="colorId">
-          <option value="">Select Color</option>
-          <option *ngFor="let color of colors" [value]="color?.colorId">
-            {{color?.colorName}}</option>
+          <option value="" selected>Select Color</option>
+          <option *ngFor="let color of colors" [value]="color?.colorId">{{ color?.colorName }}</option>
         </select>
-        <span *ngIf="this.productForm.get('colorId')?.touched && this.productForm.get('colorId')?.hasError('required')"
-          class="text-danger">Please select color</span>
+        <span *ngIf="productForm.get('colorId')?.touched && productForm.get('colorId')?.hasError('required')"
+          class="text-danger">
+          Please select color
+        </span>
       </div>
       <div class="col-6">
         <label for="sizeId" class="form-label asterik">Size</label>
         <select class="form-control" id="sizeId" formControlName="sizeId">
           <option value="" selected>Select Size</option>
-          <option *ngFor="let size of sizes" [value]="size?.sizeId">{{size?.sizeName}}</option>
+          <option *ngFor="let size of sizes" [value]="size?.sizeId">{{ size?.sizeName }}</option>
         </select>
-        <span *ngIf="this.productForm.get('sizeId')?.touched && this.productForm.get('sizeId')?.hasError('required')"
-          class="text-danger">Please select size</span>
+        <span *ngIf="productForm.get('sizeId')?.touched && productForm.get('sizeId')?.hasError('required')"
+          class="text-danger">
+          Please select size
+        </span>
       </div>
     </div>
 
@@ -103,24 +113,25 @@
         <label for="basePrice" class="form-label asterik">Base Price</label>
         <input type="number" class="form-control" id="basePrice" placeholder="Enter base price"
           formControlName="basePrice">
-        <span
-          *ngIf="this.productForm.get('basePrice')?.touched && this.productForm.get('basePrice')?.hasError('required')"
-          class="text-danger">Base price is required</span>
+        <span *ngIf="productForm.get('basePrice')?.touched && productForm.get('basePrice')?.hasError('required')"
+          class="text-danger">
+          Base price is required
+        </span>
       </div>
-
       <div class="col-6">
         <label for="quantity" class="form-label asterik">Total Quantity</label>
         <input type="number" class="form-control" id="quantity" placeholder="Enter total quantity"
           formControlName="quantity">
-        <span
-          *ngIf="this.productForm.get('quantity')?.touched && this.productForm.get('quantity')?.hasError('required')"
-          class="text-danger">Total quantity is required</span>
+        <span *ngIf="productForm.get('quantity')?.touched && productForm.get('quantity')?.hasError('required')"
+          class="text-danger">
+          Total quantity is required
+        </span>
       </div>
     </div>
 
     <div class="mb-3 row">
       <div class="col-8">
-        <button type="submit" class="btn btn-outline-success w-100" (click)="addProduct()">Create Product</button>
+        <button type="submit" class="btn btn-outline-success w-100">Create Product</button>
       </div>
       <div class="col-4">
         <button type="button" class="btn btn-secondary w-100" (click)="clearForm()">Clear</button>

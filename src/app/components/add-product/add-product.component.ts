@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Subscription } from 'rxjs';
+import { Subject, takeUntil } from 'rxjs';
 import { CommonService } from '../../services/common.service';
 import { AlertComponent } from '../alert/alert.component';
 
@@ -14,7 +14,7 @@ import { AlertComponent } from '../alert/alert.component';
 })
 export class AddProductComponent implements OnInit, OnDestroy {
 
-  subscription: Subscription = new Subscription
+  private unsubscribe$ = new Subject<void>(); // For unsubscribe
 
   brands: any[] = []
   categories: any[] = []
@@ -49,11 +49,22 @@ export class AddProductComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.goToTop()
-    this.getBrands();
-    this.getGenders();
-    this.getColors();
-    this.getSizes();
+    this.loadDropdowns();
+  }
+
+  loadDropdowns() {
+    this.commonService.getGenders().pipe(takeUntil(this.unsubscribe$)).subscribe((resp: any) => {
+      this.genders = resp?.data;
+    });
+    this.commonService.getBrands().pipe(takeUntil(this.unsubscribe$)).subscribe((resp: any) => {
+      this.brands = resp?.data;
+    });
+    this.commonService.getSizes().pipe(takeUntil(this.unsubscribe$)).subscribe((resp: any) => {
+      this.sizes = resp?.data;
+    });
+    this.commonService.getColors().pipe(takeUntil(this.unsubscribe$)).subscribe((resp: any) => {
+      this.colors = resp?.data;
+    });
   }
 
   addProduct() {
@@ -66,89 +77,19 @@ export class AddProductComponent implements OnInit, OnDestroy {
     }
   }
 
-  getBrands() {
-    this.subscription.add(
-      this.commonService.getBrands().subscribe({
-        next: (resp: any) => {
-          this.brands = resp?.data
-        },
-        error: (err: any) => {
-          console.error(err);
-        }
-      })
-    );
-  }
-
-  getCategoriesByGender(genderId: any) {
-    this.subscription.add(
-      this.commonService.getCategoriesByGender(genderId).subscribe({
-        next: (resp: any) => {
-          this.categories = resp?.data
-        },
-        error: (err: any) => {
-          console.error(err);
-        }
-      })
-    );
-  }
-
   getCollectionsByBrand(brandId: any) {
-    this.subscription.add(
-      this.commonService.getCollectionsByBrand(brandId).subscribe({
-        next: (resp: any) => {
-          this.collections = resp?.data
-        },
-        error: (err: any) => {
-          console.error(err);
-        }
-      })
-    );
-  }
-
-  getGenders() {
-    this.subscription.add(
-      this.commonService.getGenders().subscribe({
-        next: (resp: any) => {
-          this.genders = resp?.data
-        },
-        error: (err: any) => {
-          console.error(err);
-        }
-      })
-    );
-  }
-
-  getColors() {
-    this.subscription.add(
-      this.commonService.getColors().subscribe({
-        next: (resp: any) => {
-          this.colors = resp?.data
-        },
-        error: (err: any) => {
-          console.error(err);
-        }
-      })
-    );
-  }
-
-  getSizes() {
-    this.subscription.add(
-      this.commonService.getSizes().subscribe({
-        next: (resp: any) => {
-          this.sizes = resp?.data
-        },
-        error: (err: any) => {
-          console.error(err);
-        }
-      })
-    );
+    this.commonService.getCollectionsByBrand(brandId).pipe(takeUntil(this.unsubscribe$)).subscribe((resp: any) => {
+      this.collections = resp?.data;
+    });
   }
 
   onGenderSelect(event: any) {
     const selectedGenderId = event.target.value;
     this.productForm.get('categoryId')?.setValue(''); // Resetting the districtId to default value
     if (selectedGenderId) {
-      this.getCategoriesByGender(selectedGenderId);
+      this.commonService.getCategoriesByGender(selectedGenderId).pipe(takeUntil(this.unsubscribe$)).subscribe((resp: any) => {
+        this.categories = resp?.data;
+      });
     }
   }
 
@@ -156,7 +97,9 @@ export class AddProductComponent implements OnInit, OnDestroy {
     const brandId = event.target.value;
     this.productForm.get('collectionId')?.setValue(''); // Resetting the districtId to default value
     if (brandId) {
-      this.getCollectionsByBrand(brandId);
+      this.commonService.getCollectionsByBrand(brandId).pipe(takeUntil(this.unsubscribe$)).subscribe((resp: any) => {
+        this.collections = resp?.data;
+      });
     }
   }
 
@@ -223,8 +166,8 @@ export class AddProductComponent implements OnInit, OnDestroy {
     this.goToTop();
   }
 
-  ngOnDestroy(): void {
-    this.subscription.unsubscribe();
+  ngOnDestroy() {
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete(); // Cleanup
   }
-
 }

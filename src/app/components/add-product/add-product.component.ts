@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { Subject, takeUntil } from 'rxjs';
 import { CommonService } from '../../services/common.service';
 import { AlertComponent } from '../alert/alert.component';
+import { ProductService } from '../../services/product.service';
 
 @Component({
   selector: 'app-add-product',
@@ -29,9 +30,13 @@ export class AddProductComponent implements OnInit, OnDestroy {
 
   productForm: FormGroup;
 
+  imagePreviews: (string | null)[] = [null, null, null, null, null];
+
+
   constructor(
     private fb: FormBuilder,
     private commonService: CommonService,
+    private productService: ProductService
   ) {
     this.productForm = this.fb.group({
       productName: ['', Validators.required],
@@ -45,10 +50,12 @@ export class AddProductComponent implements OnInit, OnDestroy {
       colorId: ['', Validators.required],
       basePrice: ['', Validators.required],
       quantity: ['', Validators.required],
+      primaryImg: ['']
     })
   }
 
   ngOnInit(): void {
+    this.goToTop()
     this.loadDropdowns();
   }
 
@@ -71,35 +78,49 @@ export class AddProductComponent implements OnInit, OnDestroy {
     this.productForm.markAllAsTouched();
     if (this.productForm.valid) {
 
+      const formData = new FormData();
+
+      // Convert the productForm to JSON string
+      const productJson = JSON.stringify(this.productForm.value);
+      formData.append('productPayload', productJson);
+
+      // Identify primary image
+      const primaryImgInput = document.getElementById('primaryImg') as HTMLInputElement;
+      const primaryImgFile = primaryImgInput?.files?.[0];
+
+      if (primaryImgFile) {
+        formData.append('primaryImg', primaryImgFile);
+      } else {
+        console.error('Primary image is missing');
+      }
+
+      // Append other images
+      for (let i = 2; i <= 5; i++) {
+        const imgInput = document.getElementById(`img${i}`) as HTMLInputElement;
+        const imgFile = imgInput?.files?.[0];
+
+        if (imgFile) {
+          formData.append(`img${i}`, imgFile);
+        }
+      }
+
+      // Now send formData to your backend service
+      this.productService.addProduct(formData)
+        .pipe(takeUntil(this.unsubscribe$))
+        .subscribe({
+          next: (response: any) => {
+            console.log("Product Added");
+          },
+          error: (err: any) => {
+            if (err?.error?.status === 400 && err?.error?.respCode === "VALIDATION_ERROR") {
+              this.handleValidationErrors(err?.error?.errors);
+            } else console.log(err);
+          }
+        });
+
     } else {
       this.focusFirstInvalidControl();
       this.alert('danger', 'Please fill required fields');
-    }
-  }
-
-  getCollectionsByBrand(brandId: any) {
-    this.commonService.getCollectionsByBrand(brandId).pipe(takeUntil(this.unsubscribe$)).subscribe((resp: any) => {
-      this.collections = resp?.data;
-    });
-  }
-
-  onGenderSelect(event: any) {
-    const selectedGenderId = event.target.value;
-    this.productForm.get('categoryId')?.setValue(''); // Resetting the districtId to default value
-    if (selectedGenderId) {
-      this.commonService.getCategoriesByGender(selectedGenderId).pipe(takeUntil(this.unsubscribe$)).subscribe((resp: any) => {
-        this.categories = resp?.data;
-      });
-    }
-  }
-
-  onBrandSelect(event: any) {
-    const brandId = event.target.value;
-    this.productForm.get('collectionId')?.setValue(''); // Resetting the districtId to default value
-    if (brandId) {
-      this.commonService.getCollectionsByBrand(brandId).pipe(takeUntil(this.unsubscribe$)).subscribe((resp: any) => {
-        this.collections = resp?.data;
-      });
     }
   }
 
@@ -116,11 +137,62 @@ export class AddProductComponent implements OnInit, OnDestroy {
             case '102':
               control.setErrors({ required: true });
               break;
+            case '103':
+              control.setErrors({ invalidFileType: true });
+              break;
+            case '104':
+              control.setErrors({ maxFileSize: true });
+              break;
+            case '105':
+              control.setErrors({ multipleExtentions: true });
+              break;
             default:
               control.setErrors({ unknownError: true });
           }
         }
       }
+    }
+  }
+
+  getCollectionsByBrand(brandId: any) {
+    this.commonService.getCollectionsByBrand(brandId).pipe(takeUntil(this.unsubscribe$)).subscribe((resp: any) => {
+      this.collections = resp?.data;
+    });
+  }
+
+  onGenderSelect(event: any) {
+    const selectedGenderId = event.target.value;
+    this.productForm.get('categoryId')?.setValue('');
+    if (selectedGenderId) {
+      this.commonService.getCategoriesByGender(selectedGenderId).pipe(takeUntil(this.unsubscribe$)).subscribe((resp: any) => {
+        this.categories = resp?.data;
+      });
+    } else this.categories = []
+  }
+
+  onBrandSelect(event: any) {
+    const brandId = event.target.value;
+    this.productForm.get('collectionId')?.setValue(''); // Resetting the districtId to default value
+    if (brandId) {
+      this.commonService.getCollectionsByBrand(brandId).pipe(takeUntil(this.unsubscribe$)).subscribe((resp: any) => {
+        this.collections = resp?.data;
+      });
+    } else this.collections = []
+  }
+  onFileSelected(event: any, index: number): void {
+    const fileInput = event.target;
+    const file = fileInput.files[0];
+
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        this.imagePreviews[index] = e.target.result; // Update the preview with the image data
+      };
+      reader.readAsDataURL(file); // Convert the file to a data URL
+    } else {
+      // If no file is selected (or dialog is closed without file)
+      this.imagePreviews[index] = null; // Reset the preview to default "No file"
+      fileInput.value = ''; // Reset the input field value so that the same file can be selected again if needed
     }
   }
 

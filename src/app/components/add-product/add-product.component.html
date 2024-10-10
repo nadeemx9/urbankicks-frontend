@@ -128,6 +128,107 @@
         </span>
       </div>
     </div>
+    <div class="file-upload-container mb-3 mt-3">
+      <div class="text-left">
+        <label for="images" class="form-label asterik">Upload Images</label>
+        <span *ngIf="productForm.get('primaryImg')?.touched && productForm.get('primaryImg')?.hasError('required')"
+          class="text-danger">
+          Please select primary image
+        </span>
+        <span
+          *ngIf="productForm.get('primaryImg')?.touched && productForm.get('primaryImg')?.hasError('invalidFileType')"
+          class="text-danger">
+          Invalid file type. Allowed types: "JPG", "JPEG", "PNG"
+        </span>
+        <span *ngIf="productForm.get('primaryImg')?.touched && productForm.get('primaryImg')?.hasError('maxFileSize')"
+          class="text-danger">
+          Max file size limit. (50MB)
+        </span>
+        <span
+          *ngIf="productForm.get('primaryImg')?.touched && productForm.get('primaryImg')?.hasError('multipleExtentions')"
+          class="text-danger">
+          File with multiple extensions not allowed
+        </span>
+      </div>
+      <div class="d-flex justify-content-center">
+        <!-- First Image with Primary Image label -->
+        <div class="image-upload-wrapper">
+          <div class="image-upload-square">
+            <ng-container *ngIf="imagePreviews[0]; else primaryImg">
+              <img [src]="imagePreviews[0]" alt="Preview" class="img-fluid">
+            </ng-container>
+            <ng-template #primaryImg>
+              <div class="no-file-message justify text-center"><i class="fa fa-3x fa-cloud-upload"
+                  aria-hidden="false"></i></div>
+            </ng-template>
+            <input type="file" class="form-control file-input-square" id="primaryImg" formControlName="primaryImg"
+              (change)="onFileSelected($event, 0)">
+          </div>
+          <span class="mt-2">Primary Image</span>
+        </div>
+        <!-- Other Images -->
+        <div class="image-upload-wrapper">
+          <div class="image-upload-square">
+            <ng-container *ngIf="imagePreviews[1]; else img2">
+              <img [src]="imagePreviews[1]" alt="Preview" class="img-fluid">
+            </ng-container>
+            <ng-template #img2>
+              <div class="no-file-message justify text-center"><i class="fa fa-3x fa-cloud-upload"
+                  aria-hidden="true"></i></div>
+            </ng-template>
+            <input type="file" class="form-control file-input-square" id="img2" (change)="onFileSelected($event, 1)">
+          </div>
+          <span class="mt-2">Image 2</span>
+        </div>
+        <div class="image-upload-wrapper">
+          <div class="image-upload-square">
+            <ng-container *ngIf="imagePreviews[2]; else img3">
+              <img [src]="imagePreviews[2]" alt="Preview" class="img-fluid">
+            </ng-container>
+            <ng-template #img3>
+              <div class="no-file-message justify text-center"><i class="fa fa-3x fa-cloud-upload"
+                  aria-hidden="true"></i></div>
+            </ng-template>
+            <input type="file" class="form-control file-input-square" id="img3" (change)="onFileSelected($event, 2)">
+          </div>
+          <span class="mt-2">Image 3</span>
+        </div>
+        <div class="image-upload-wrapper">
+          <div class="image-upload-square">
+            <ng-container *ngIf="imagePreviews[3]; else img4">
+              <img [src]="imagePreviews[3]" alt="Preview" class="img-fluid">
+            </ng-container>
+            <ng-template #img4>
+              <div class="no-file-message justify text-center"><i class="fa fa-3x fa-cloud-upload"
+                  aria-hidden="true"></i></div>
+            </ng-template>
+            <input type="file" class="form-control file-input-square" id="img4" (change)="onFileSelected($event, 3)">
+          </div>
+          <span class="mt-2">Image 4</span>
+        </div>
+        <div class="image-upload-wrapper">
+          <div class="image-upload-square">
+            <ng-container *ngIf="imagePreviews[4]; else img5">
+              <img [src]="imagePreviews[4]" alt="Preview" class="img-fluid">
+            </ng-container>
+            <ng-template #img5>
+              <div class="no-file-message justify text-center"><i class="fa fa-3x fa-cloud-upload"
+                  aria-hidden="true"></i></div>
+            </ng-template>
+            <input type="file" class="form-control file-input-square" id="img5" (change)="onFileSelected($event, 4)">
+          </div>
+          <span class="mt-2">Image 5</span>
+        </div>
+      </div>
+    </div>
+
+
+
+
+
+
+
+
 
     <div class="mb-3 row">
       <div class="col-8">

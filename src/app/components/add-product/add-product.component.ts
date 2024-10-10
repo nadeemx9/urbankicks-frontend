@@ -1,10 +1,12 @@
-import { CommonModule } from '@angular/common';
+import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
+import { CommonModule, JsonPipe } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Subject, takeUntil } from 'rxjs';
 import { CommonService } from '../../services/common.service';
 import { AlertComponent } from '../alert/alert.component';
 import { ProductService } from '../../services/product.service';
+import { json } from 'stream/consumers';
 
 @Component({
   selector: 'app-add-product',
@@ -29,6 +31,8 @@ export class AddProductComponent implements OnInit, OnDestroy {
   alertMessage: string = '';
 
   productForm: FormGroup;
+  imageForm: FormGroup
+
 
   imagePreviews: (string | null)[] = [null, null, null, null, null];
 
@@ -50,7 +54,14 @@ export class AddProductComponent implements OnInit, OnDestroy {
       colorId: ['', Validators.required],
       basePrice: ['', Validators.required],
       quantity: ['', Validators.required],
-      primaryImg: ['']
+    })
+
+    this.imageForm = this.fb.group({
+      primaryImg: [null],
+      img2: [null, imageValidator()],
+      img3: [null, imageValidator()],
+      img4: [null, imageValidator()],
+      img5: [null, imageValidator()]
     })
   }
 
@@ -124,31 +135,35 @@ export class AddProductComponent implements OnInit, OnDestroy {
     }
   }
 
-  private handleValidationErrors(errors: any) {
+  private handleValidationErrors(errors: { [key: string]: string }) {
+    const errorMessages: { [key: string]: any } = {
+      '101': { required: true },
+      '102': { required: true },
+      '103': { invalidFileType: true },
+      '104': { maxFileSize: true },
+      '105': { multipleExtensions: true },
+      '106': { blankFile: true },
+      '107': { required: true }
+    };
+
     for (const field in errors) {
       if (errors.hasOwnProperty(field)) {
         const errorCode = errors[field];
-        const control = this.productForm.get(field);
+
+        // Ensure errorCode is a string and valid key for errorMessages
+        const error = errorMessages[errorCode as keyof typeof errorMessages] || { unknownError: true };
+
+        // Check if field belongs to productForm
+        let control = this.productForm.get(field);
+        if (!control) {
+          // If not in productForm, check in imageForm
+          control = this.imageForm.get(field);
+        }
+
         if (control) {
-          switch (errorCode) {
-            case '101':
-              control.setErrors({ required: true });
-              break;
-            case '102':
-              control.setErrors({ required: true });
-              break;
-            case '103':
-              control.setErrors({ invalidFileType: true });
-              break;
-            case '104':
-              control.setErrors({ maxFileSize: true });
-              break;
-            case '105':
-              control.setErrors({ multipleExtentions: true });
-              break;
-            default:
-              control.setErrors({ unknownError: true });
-          }
+          control.setErrors(error);
+        } else {
+          console.error('Invalid field name:', field);
         }
       }
     }
@@ -179,11 +194,18 @@ export class AddProductComponent implements OnInit, OnDestroy {
       });
     } else this.collections = []
   }
-  onFileSelected(event: any, index: number): void {
-    const fileInput = event.target;
-    const file = fileInput.files[0];
+  onFileSelected(event: Event, index: number): void {
+    const fileInput = event.target as HTMLInputElement;
+    const file = fileInput.files?.[0];
 
     if (file) {
+      const controlName = fileInput.id; // Extracting the control name from the input's id
+
+      // Set the file directly to the form control for validation
+      // this.imageForm.get(controlName)?.setValue(file); // Store the file object
+      this.imageForm.get(controlName)?.updateValueAndValidity(); // Trigger validation
+
+      // Create a FileReader to read the image and show a preview
       const reader = new FileReader();
       reader.onload = (e: any) => {
         this.imagePreviews[index] = e.target.result; // Update the preview with the image data
@@ -192,6 +214,7 @@ export class AddProductComponent implements OnInit, OnDestroy {
     } else {
       // If no file is selected (or dialog is closed without file)
       this.imagePreviews[index] = null; // Reset the preview to default "No file"
+      this.imageForm.get(fileInput.id)?.setValue(null); // Clear the form control
       fileInput.value = ''; // Reset the input field value so that the same file can be selected again if needed
     }
   }
@@ -238,8 +261,65 @@ export class AddProductComponent implements OnInit, OnDestroy {
     this.goToTop();
   }
 
+
   ngOnDestroy() {
     this.unsubscribe$.next();
     this.unsubscribe$.complete(); // Cleanup
   }
 }
+
+// Define allowed extensions and max file size (50MB)
+const ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png'];
+const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
+
+// Validator function
+export function imageValidator(): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    const file = control.value;
+
+    // If no file is selected, return null (no error)
+    if (!file) return null;
+
+    // Ensure the value is a File object
+    if (!(file instanceof File)) {
+      console.log("INVALID FILE: Not a File instance");
+      return { invalidFileType: true };
+    }
+
+    // Validate the file properties
+    if (!file.name || typeof file.size !== 'number') {
+      console.log("INVALID FILE: Missing name or size");
+      return { invalidFileType: true };
+    }
+
+    // Check if file is empty (0 bytes)
+    if (file.size === 0) {
+      console.log("INVALID FILE: Blank file");
+      return { blankFile: true };
+    }
+
+    // Check if file exceeds the maximum size
+    if (file.size > MAX_FILE_SIZE) {
+      console.log("INVALID FILE: File is too large");
+      return { maxFileSize: true };
+    }
+
+    // Check file extension
+    const fileExtension = file.name.split('.').pop()?.toLowerCase();
+    if (!ALLOWED_EXTENSIONS.includes(fileExtension || '')) {
+      console.log("INVALID FILE: Invalid file type");
+      return { invalidFileType: true };
+    }
+
+    // Check for multiple extensions (more than one period in the file name)
+    if (file.name.split('.').length > 2) {
+      console.log("INVALID FILE: Multiple extensions");
+      return { multipleExtensions: true };
+    }
+
+    return null; // No errors
+  };
+}
+
+
+

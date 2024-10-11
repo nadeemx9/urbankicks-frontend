@@ -14,7 +14,7 @@ import { AlertComponent } from '../alert/alert.component';
   styleUrl: './add-product.component.scss'
 })
 export class AddProductComponent implements OnInit, OnDestroy {
-  private unsubscribe$ = new Subject<void>(); // For unsubscribe
+  private unsubscribe$ = new Subject<void>();
 
   brands: any[] = [];
   categories: any[] = [];
@@ -30,8 +30,8 @@ export class AddProductComponent implements OnInit, OnDestroy {
   productForm: FormGroup;
   imageForm: FormGroup;
 
-  imagePreviews: (string | null)[] = Array(5).fill(null); // Pre-fill with nulls
-  selectedFiles: (File | null)[] = Array(5).fill(null); // Pre-fill with nulls
+  imagePreviews: (string | null)[] = Array(5).fill(null);
+  selectedFiles: (File | null)[] = Array(5).fill(null);
 
   constructor(
     private fb: FormBuilder,
@@ -106,15 +106,15 @@ export class AddProductComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Build FormData object for file upload
   buildFormData(): FormData {
     const formData = new FormData();
     const productPayload = JSON.stringify(this.productForm.value);
     formData.append('productPayload', productPayload);
     const imageControls = ['primaryImg', 'img2', 'img3', 'img4', 'img5'];
-    imageControls.forEach(control => {
-      const file = this.imageForm.get(control)?.value;
+    imageControls.forEach((control, index) => {
+      const file = this.selectedFiles[index];
       if (file) {
+        console.log(control, file);
         formData.append(control, file);
       }
     });
@@ -293,7 +293,3 @@ export class AddProductComponent implements OnInit, OnDestroy {
     this.unsubscribe$.complete();
   }
 }
-
-
-
-

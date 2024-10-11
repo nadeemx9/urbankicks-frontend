@@ -212,8 +212,6 @@ export class AddProductComponent implements OnInit, OnDestroy {
     const fileExtension = `.${fileNameParts.pop()?.toLowerCase()}`;
 
     if (file.size === 0) {
-      console.log('max file size');
-
       return this.setFileError(controlName, 'blankFile', index);
     } else if (fileNameParts.length > 1) {
       return this.setFileError(controlName, 'multipleExtensions', index);

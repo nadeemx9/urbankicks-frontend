@@ -1,12 +1,10 @@
-import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
-import { CommonModule, JsonPipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Subject, takeUntil } from 'rxjs';
 import { CommonService } from '../../services/common.service';
-import { AlertComponent } from '../alert/alert.component';
 import { ProductService } from '../../services/product.service';
-import { json } from 'stream/consumers';
+import { AlertComponent } from '../alert/alert.component';
 
 @Component({
   selector: 'app-add-product',
@@ -93,9 +91,9 @@ export class AddProductComponent implements OnInit, OnDestroy {
   addProduct(): void {
     this.productForm.markAllAsTouched();
     this.imageForm.markAllAsTouched();
-    if (this.productForm.valid) {
-      const formData = this.buildFormData();
 
+    if (this.productForm.valid && this.imageForm.valid) {
+      const formData = this.buildFormData();
       this.productService.addProduct(formData)
         .pipe(takeUntil(this.unsubscribe$))
         .subscribe({
@@ -108,27 +106,21 @@ export class AddProductComponent implements OnInit, OnDestroy {
     }
   }
 
-  private buildFormData(): FormData {
+  // Build FormData object for file upload
+  buildFormData(): FormData {
     const formData = new FormData();
-    formData.append('productPayload', JSON.stringify(this.productForm.value));
-
-    // Append primary image
-    const primaryImgFile = (document.getElementById('primaryImg') as HTMLInputElement)?.files?.[0];
-    if (primaryImgFile) {
-      formData.append('primaryImg', primaryImgFile);
-    } else {
-      console.error('Primary image is missing');
-    }
-
-    // Append other images
-    for (let i = 2; i <= 5; i++) {
-      const imgFile = (document.getElementById(`img${i}`) as HTMLInputElement)?.files?.[0];
-      if (imgFile) {
-        formData.append(`img${i}`, imgFile);
+    const productPayload = JSON.stringify(this.productForm.value);
+    formData.append('productPayload', productPayload);
+    const imageControls = ['primaryImg', 'img2', 'img3', 'img4', 'img5'];
+    imageControls.forEach(control => {
+      const file = this.imageForm.get(control)?.value;
+      if (file) {
+        formData.append(control, file);
       }
-    }
+    });
     return formData;
   }
+
 
   private handleProductError(err: any): void {
     if (err?.error?.status === 400 && err?.error?.respCode === "VALIDATION_ERROR") {
@@ -198,8 +190,10 @@ export class AddProductComponent implements OnInit, OnDestroy {
 
     if (file) {
       this.selectedFiles[index] = file;
-      if (!this.validateFile(file, fileInput.id, index)) return;
 
+      this.resetFileValidation(fileInput.id);
+
+      if (!this.validateFile(file, fileInput.id, index)) return;
       const reader = new FileReader();
       reader.onload = (e: any) => {
         this.imagePreviews[index] = e.target.result;
@@ -210,47 +204,51 @@ export class AddProductComponent implements OnInit, OnDestroy {
     }
   }
 
-  private resetFileInput(fileInput: HTMLInputElement, index: number): void {
-    this.imagePreviews[index] = null;
-    this.selectedFiles[index] = null;
-    this.imageForm.get(fileInput.id)?.setValue(null);
-    fileInput.value = '';
-  }
-
   validateFile(file: File, controlName: string, index: number): boolean {
-    this.imageForm.get(controlName)?.setErrors(null);
-
+    const ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png'];
+    const MAX_FILE_SIZE = 10; // MB
     const fileSizeMB = file.size / (1024 * 1024);
     const fileNameParts = file.name.split('.');
     const fileExtension = `.${fileNameParts.pop()?.toLowerCase()}`;
 
-    const ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png'];
-    const MAX_FILE_SIZE = 10;
-
     if (file.size === 0) {
-      this.setFileError(controlName, 'blankFile', index);
-      return false;
+      console.log('max file size');
+
+      return this.setFileError(controlName, 'blankFile', index);
     } else if (fileNameParts.length > 1) {
-      this.setFileError(controlName, 'multipleExtensions', index);
-      return false;
+      return this.setFileError(controlName, 'multipleExtensions', index);
     } else if (!ALLOWED_EXTENSIONS.includes(fileExtension)) {
-      this.setFileError(controlName, 'invalidFileType', index);
-      return false;
+      return this.setFileError(controlName, 'invalidFileType', index);
     } else if (fileSizeMB > MAX_FILE_SIZE) {
-      this.setFileError(controlName, 'maxFileSize', index);
-      return false;
+      return this.setFileError(controlName, 'maxFileSize', index);
     }
-    return true;
+    return true; // Valid file
   }
 
-  setFileError(controlName: string, errorType: string, index: number): void {
+  setFileError(controlName: string, errorType: string, index: number): boolean {
     const control = this.imageForm.get(controlName);
     if (control) {
       control.setErrors({ [errorType]: true });
       this.imagePreviews[index] = null;
       this.selectedFiles[index] = null;
     }
+    return false;
   }
+
+
+  private resetFileValidation(controlName: string): void {
+    const control = this.imageForm.get(controlName);
+    if (control && control.invalid) {
+      control.setErrors(null);
+    }
+  }
+
+  private resetFileInput(fileInput: HTMLInputElement, index: number): void {
+    this.imagePreviews[index] = null;
+    this.selectedFiles[index] = null;
+    fileInput.value = '';
+  }
+
 
   private focusFirstInvalidControl(): void {
     const invalidControl = document.querySelector('.ng-invalid[formControlName]') as HTMLElement;
@@ -287,6 +285,7 @@ export class AddProductComponent implements OnInit, OnDestroy {
     this.productForm.get('colorId')?.setValue('');
     this.productForm.get('basePrice')?.setValue('');
     this.productForm.get('quantity')?.setValue('');
+    this.imageForm.reset();
     this.goToTop();
   }
 

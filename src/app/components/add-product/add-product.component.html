@@ -137,22 +137,38 @@
           class="text-danger">
           Please select primary image
         </span>
-        <span *ngIf="imageForm.get('primaryImg')?.touched && imageForm.get('primaryImg')?.hasError('invalidFileType')"
-          class="text-danger">
+        <span *ngIf="
+        (imageForm.get('primaryImg')?.touched && imageForm.get('primaryImg')?.hasError('invalidFileType')) || 
+        (imageForm.get('img2')?.touched && imageForm.get('img2')?.hasError('invalidFileType')) ||
+        (imageForm.get('img3')?.touched && imageForm.get('img3')?.hasError('invalidFileType')) || 
+        (imageForm.get('img4')?.touched && imageForm.get('img4')?.hasError('invalidFileType')) || 
+        (imageForm.get('img5')?.touched && imageForm.get('img5')?.hasError('invalidFileType')) " class="text-danger">
           Invalid file type. Allowed types: ".JPG", ".JPEG", ".PNG"
         </span>
-        <span *ngIf="imageForm.get('primaryImg')?.touched && imageForm.get('primaryImg')?.hasError('maxFileSize')"
-          class="text-danger">
-          Max file size limit. (10MB)
+        <span *ngIf="
+        (imageForm.get('primaryImg')?.touched && imageForm.get('primaryImg')?.hasError('maxFileSize')) || 
+        (imageForm.get('img2')?.touched && imageForm.get('img2')?.hasError('maxFileSize')) ||
+        (imageForm.get('img3')?.touched && imageForm.get('img3')?.hasError('maxFileSize')) || 
+        (imageForm.get('img4')?.touched && imageForm.get('img4')?.hasError('maxFileSize')) || 
+        (imageForm.get('img5')?.touched && imageForm.get('img5')?.hasError('maxFileSize')) " class="text-danger">
+          Max file size exceeds (10 MB)
         </span>
-        <span
-          *ngIf="imageForm.get('primaryImg')?.touched && imageForm.get('primaryImg')?.hasError('multipleExtensions')"
+        <span *ngIf="
+        (imageForm.get('primaryImg')?.touched && imageForm.get('primaryImg')?.hasError('multipleExtensions')) || 
+        (imageForm.get('img2')?.touched && imageForm.get('img2')?.hasError('multipleExtensions')) ||
+        (imageForm.get('img3')?.touched && imageForm.get('img3')?.hasError('multipleExtensions')) || 
+        (imageForm.get('img4')?.touched && imageForm.get('img4')?.hasError('multipleExtensions')) || 
+        (imageForm.get('img5')?.touched && imageForm.get('img5')?.hasError('multipleExtensions')) "
           class="text-danger">
           File with multiple extensions not allowed
         </span>
-        <span *ngIf="imageForm.get('primaryImg')?.touched && imageForm.get('primaryImg')?.hasError('blankFile')"
-          class="text-danger">
-          Blank file (0 bytes) not allowed
+        <span *ngIf="
+        (imageForm.get('primaryImg')?.touched && imageForm.get('primaryImg')?.hasError('blankFile')) || 
+        (imageForm.get('img2')?.touched && imageForm.get('img2')?.hasError('blankFile')) ||
+        (imageForm.get('img3')?.touched && imageForm.get('img3')?.hasError('blankFile')) || 
+        (imageForm.get('img4')?.touched && imageForm.get('img4')?.hasError('blankFile')) || 
+        (imageForm.get('img5')?.touched && imageForm.get('img5')?.hasError('blankFile')) " class="text-danger">
+          Blank file not allowed
         </span>
       </div>
       <div class="d-flex justify-content-center">

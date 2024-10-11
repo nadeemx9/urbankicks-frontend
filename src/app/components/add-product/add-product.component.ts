@@ -35,6 +35,7 @@ export class AddProductComponent implements OnInit, OnDestroy {
 
 
   imagePreviews: (string | null)[] = [null, null, null, null, null];
+  selectedFiles: (File | null)[] = [null, null, null, null, null]; // Allow null values
 
 
   constructor(
@@ -57,11 +58,11 @@ export class AddProductComponent implements OnInit, OnDestroy {
     })
 
     this.imageForm = this.fb.group({
-      primaryImg: [null],
-      img2: [null, imageValidator()],
-      img3: [null, imageValidator()],
-      img4: [null, imageValidator()],
-      img5: [null, imageValidator()]
+      primaryImg: ['', Validators.required],
+      img2: [''],
+      img3: [''],
+      img4: [''],
+      img5: ['']
     })
   }
 
@@ -87,6 +88,7 @@ export class AddProductComponent implements OnInit, OnDestroy {
 
   addProduct() {
     this.productForm.markAllAsTouched();
+    this.imageForm.markAllAsTouched();
     if (this.productForm.valid) {
 
       const formData = new FormData();
@@ -149,17 +151,11 @@ export class AddProductComponent implements OnInit, OnDestroy {
     for (const field in errors) {
       if (errors.hasOwnProperty(field)) {
         const errorCode = errors[field];
-
-        // Ensure errorCode is a string and valid key for errorMessages
         const error = errorMessages[errorCode as keyof typeof errorMessages] || { unknownError: true };
-
-        // Check if field belongs to productForm
         let control = this.productForm.get(field);
         if (!control) {
-          // If not in productForm, check in imageForm
           control = this.imageForm.get(field);
         }
-
         if (control) {
           control.setErrors(error);
         } else {
@@ -187,35 +183,71 @@ export class AddProductComponent implements OnInit, OnDestroy {
 
   onBrandSelect(event: any) {
     const brandId = event.target.value;
-    this.productForm.get('collectionId')?.setValue(''); // Resetting the districtId to default value
+    this.productForm.get('collectionId')?.setValue('');
     if (brandId) {
       this.commonService.getCollectionsByBrand(brandId).pipe(takeUntil(this.unsubscribe$)).subscribe((resp: any) => {
         this.collections = resp?.data;
       });
     } else this.collections = []
   }
+
+
   onFileSelected(event: Event, index: number): void {
     const fileInput = event.target as HTMLInputElement;
     const file = fileInput.files?.[0];
 
     if (file) {
-      const controlName = fileInput.id; // Extracting the control name from the input's id
-
-      // Set the file directly to the form control for validation
-      // this.imageForm.get(controlName)?.setValue(file); // Store the file object
-      this.imageForm.get(controlName)?.updateValueAndValidity(); // Trigger validation
-
-      // Create a FileReader to read the image and show a preview
+      const controlName = fileInput.id;
+      this.selectedFiles[index] = file;
+      if (!this.validateFile(file, controlName, index)) {
+        return;
+      }
       const reader = new FileReader();
       reader.onload = (e: any) => {
-        this.imagePreviews[index] = e.target.result; // Update the preview with the image data
+        this.imagePreviews[index] = e.target.result;
       };
-      reader.readAsDataURL(file); // Convert the file to a data URL
+      reader.readAsDataURL(file);
     } else {
-      // If no file is selected (or dialog is closed without file)
-      this.imagePreviews[index] = null; // Reset the preview to default "No file"
-      this.imageForm.get(fileInput.id)?.setValue(null); // Clear the form control
-      fileInput.value = ''; // Reset the input field value so that the same file can be selected again if needed
+      this.imagePreviews[index] = null;
+      this.selectedFiles[index] = null;
+      this.imageForm.get(fileInput.id)?.setValue(null);
+      fileInput.value = '';
+    }
+  }
+
+  validateFile(file: File, controlName: string, index: number): boolean {
+    this.imageForm.get(controlName)?.setErrors(null);
+
+    const fileSizeMB = file.size / (1024 * 1024);
+    const fileNameParts = file.name.split('.');
+    const fileExtension = `.${fileNameParts.pop()?.toLowerCase()}`;
+
+    const ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png'];
+    const MAX_FILE_SIZE = 10;
+
+    if (file.size === 0) {
+      this.setFileError(controlName, 'blankFile', index);
+      return false;
+    } else if (fileNameParts.length > 1) {
+      this.setFileError(controlName, 'multipleExtensions', index);
+      return false;
+    } else if (!ALLOWED_EXTENSIONS.includes(fileExtension)) {
+      this.setFileError(controlName, 'invalidFileType', index);
+      return false;
+    } else if (fileSizeMB > MAX_FILE_SIZE) {
+      this.setFileError(controlName, 'maxFileSize', index);
+      return false;
+    }
+    return true;
+  }
+
+
+  setFileError(controlName: string, errorType: string, index: number): void {
+    const control = this.imageForm.get(controlName);
+    if (control) {
+      control.setErrors({ [errorType]: true });
+      this.imagePreviews[index] = null;
+      this.selectedFiles[index] = null;
     }
   }
 
@@ -264,62 +296,10 @@ export class AddProductComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.unsubscribe$.next();
-    this.unsubscribe$.complete(); // Cleanup
+    this.unsubscribe$.complete();
   }
 }
 
-// Define allowed extensions and max file size (50MB)
-const ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png'];
-const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
-
-// Validator function
-export function imageValidator(): ValidatorFn {
-  return (control: AbstractControl): ValidationErrors | null => {
-    const file = control.value;
-
-    // If no file is selected, return null (no error)
-    if (!file) return null;
-
-    // Ensure the value is a File object
-    if (!(file instanceof File)) {
-      console.log("INVALID FILE: Not a File instance");
-      return { invalidFileType: true };
-    }
-
-    // Validate the file properties
-    if (!file.name || typeof file.size !== 'number') {
-      console.log("INVALID FILE: Missing name or size");
-      return { invalidFileType: true };
-    }
-
-    // Check if file is empty (0 bytes)
-    if (file.size === 0) {
-      console.log("INVALID FILE: Blank file");
-      return { blankFile: true };
-    }
-
-    // Check if file exceeds the maximum size
-    if (file.size > MAX_FILE_SIZE) {
-      console.log("INVALID FILE: File is too large");
-      return { maxFileSize: true };
-    }
-
-    // Check file extension
-    const fileExtension = file.name.split('.').pop()?.toLowerCase();
-    if (!ALLOWED_EXTENSIONS.includes(fileExtension || '')) {
-      console.log("INVALID FILE: Invalid file type");
-      return { invalidFileType: true };
-    }
-
-    // Check for multiple extensions (more than one period in the file name)
-    if (file.name.split('.').length > 2) {
-      console.log("INVALID FILE: Multiple extensions");
-      return { multipleExtensions: true };
-    }
-
-    return null; // No errors
-  };
-}
 
 
 

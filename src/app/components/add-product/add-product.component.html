@@ -143,10 +143,10 @@
         </span>
         <span *ngIf="imageForm.get('primaryImg')?.touched && imageForm.get('primaryImg')?.hasError('maxFileSize')"
           class="text-danger">
-          Max file size limit. (50MB)
+          Max file size limit. (10MB)
         </span>
         <span
-          *ngIf="imageForm.get('primaryImg')?.touched && imageForm.get('primaryImg')?.hasError('multipleExtentions')"
+          *ngIf="imageForm.get('primaryImg')?.touched && imageForm.get('primaryImg')?.hasError('multipleExtensions')"
           class="text-danger">
           File with multiple extensions not allowed
         </span>
@@ -237,7 +237,7 @@
 
   <div class="mb-3 row">
     <div class="col-8">
-      <button type="submit" class="btn btn-outline-success w-100">Create Product</button>
+      <button type="submit" class="btn btn-outline-success w-100" (click)="addProduct()">Create Product</button>
     </div>
     <div class="col-4">
       <button type="button" class="btn btn-secondary w-100" (click)="clearForm()">Clear</button>

@@ -16,34 +16,41 @@ import { json } from 'stream/consumers';
   styleUrl: './add-product.component.scss'
 })
 export class AddProductComponent implements OnInit, OnDestroy {
-
   private unsubscribe$ = new Subject<void>(); // For unsubscribe
 
-  brands: any[] = []
-  categories: any[] = []
-  genders: any[] = []
-  collections: any[] = []
-  sizes: any[] = []
-  colors: any[] = []
+  brands: any[] = [];
+  categories: any[] = [];
+  genders: any[] = [];
+  collections: any[] = [];
+  sizes: any[] = [];
+  colors: any[] = [];
 
-  showAlert: boolean = false;
-  alertType: string = '';
-  alertMessage: string = '';
+  showAlert = false;
+  alertType = '';
+  alertMessage = '';
 
   productForm: FormGroup;
-  imageForm: FormGroup
+  imageForm: FormGroup;
 
-
-  imagePreviews: (string | null)[] = [null, null, null, null, null];
-  selectedFiles: (File | null)[] = [null, null, null, null, null]; // Allow null values
-
+  imagePreviews: (string | null)[] = Array(5).fill(null); // Pre-fill with nulls
+  selectedFiles: (File | null)[] = Array(5).fill(null); // Pre-fill with nulls
 
   constructor(
     private fb: FormBuilder,
     private commonService: CommonService,
     private productService: ProductService
   ) {
-    this.productForm = this.fb.group({
+    this.productForm = this.createProductForm();
+    this.imageForm = this.createImageForm();
+  }
+
+  ngOnInit(): void {
+    this.goToTop();
+    this.loadDropdowns();
+  }
+
+  private createProductForm(): FormGroup {
+    return this.fb.group({
       productName: ['', Validators.required],
       title: ['', Validators.required],
       description: ['', Validators.required],
@@ -55,20 +62,17 @@ export class AddProductComponent implements OnInit, OnDestroy {
       colorId: ['', Validators.required],
       basePrice: ['', Validators.required],
       quantity: ['', Validators.required],
-    })
+    });
+  }
 
-    this.imageForm = this.fb.group({
+  private createImageForm(): FormGroup {
+    return this.fb.group({
       primaryImg: ['', Validators.required],
       img2: [''],
       img3: [''],
       img4: [''],
-      img5: ['']
-    })
-  }
-
-  ngOnInit(): void {
-    this.goToTop()
-    this.loadDropdowns();
+      img5: [''],
+    });
   }
 
   loadDropdowns() {
@@ -86,58 +90,55 @@ export class AddProductComponent implements OnInit, OnDestroy {
     });
   }
 
-  addProduct() {
+  addProduct(): void {
     this.productForm.markAllAsTouched();
     this.imageForm.markAllAsTouched();
     if (this.productForm.valid) {
+      const formData = this.buildFormData();
 
-      const formData = new FormData();
-
-      // Convert the productForm to JSON string
-      const productJson = JSON.stringify(this.productForm.value);
-      formData.append('productPayload', productJson);
-
-      // Identify primary image
-      const primaryImgInput = document.getElementById('primaryImg') as HTMLInputElement;
-      const primaryImgFile = primaryImgInput?.files?.[0];
-
-      if (primaryImgFile) {
-        formData.append('primaryImg', primaryImgFile);
-      } else {
-        console.error('Primary image is missing');
-      }
-
-      // Append other images
-      for (let i = 2; i <= 5; i++) {
-        const imgInput = document.getElementById(`img${i}`) as HTMLInputElement;
-        const imgFile = imgInput?.files?.[0];
-
-        if (imgFile) {
-          formData.append(`img${i}`, imgFile);
-        }
-      }
-
-      // Now send formData to your backend service
       this.productService.addProduct(formData)
         .pipe(takeUntil(this.unsubscribe$))
         .subscribe({
-          next: (response: any) => {
-            console.log("Product Added");
-          },
-          error: (err: any) => {
-            if (err?.error?.status === 400 && err?.error?.respCode === "VALIDATION_ERROR") {
-              this.handleValidationErrors(err?.error?.errors);
-            } else console.log(err);
-          }
+          next: () => this.alert('success', 'Product added successfully.'),
+          error: (err) => this.handleProductError(err),
         });
-
     } else {
       this.focusFirstInvalidControl();
       this.alert('danger', 'Please fill required fields');
     }
   }
 
-  private handleValidationErrors(errors: { [key: string]: string }) {
+  private buildFormData(): FormData {
+    const formData = new FormData();
+    formData.append('productPayload', JSON.stringify(this.productForm.value));
+
+    // Append primary image
+    const primaryImgFile = (document.getElementById('primaryImg') as HTMLInputElement)?.files?.[0];
+    if (primaryImgFile) {
+      formData.append('primaryImg', primaryImgFile);
+    } else {
+      console.error('Primary image is missing');
+    }
+
+    // Append other images
+    for (let i = 2; i <= 5; i++) {
+      const imgFile = (document.getElementById(`img${i}`) as HTMLInputElement)?.files?.[0];
+      if (imgFile) {
+        formData.append(`img${i}`, imgFile);
+      }
+    }
+    return formData;
+  }
+
+  private handleProductError(err: any): void {
+    if (err?.error?.status === 400 && err?.error?.respCode === "VALIDATION_ERROR") {
+      this.handleValidationErrors(err?.error?.errors);
+    } else {
+      console.error(err);
+    }
+  }
+
+  private handleValidationErrors(errors: { [key: string]: string }): void {
     const errorMessages: { [key: string]: any } = {
       '101': { required: true },
       '102': { required: true },
@@ -148,71 +149,72 @@ export class AddProductComponent implements OnInit, OnDestroy {
       '107': { required: true }
     };
 
-    for (const field in errors) {
-      if (errors.hasOwnProperty(field)) {
-        const errorCode = errors[field];
-        const error = errorMessages[errorCode as keyof typeof errorMessages] || { unknownError: true };
-        let control = this.productForm.get(field);
-        if (!control) {
-          control = this.imageForm.get(field);
-        }
-        if (control) {
-          control.setErrors(error);
-        } else {
-          console.error('Invalid field name:', field);
-        }
+    Object.entries(errors).forEach(([field, errorCode]) => {
+      const error = errorMessages[errorCode] || { unknownError: true };
+      const control = this.productForm.get(field) || this.imageForm.get(field);
+      if (control) {
+        control.setErrors(error);
+      } else {
+        console.error('Invalid field name:', field);
       }
-    }
-  }
-
-  getCollectionsByBrand(brandId: any) {
-    this.commonService.getCollectionsByBrand(brandId).pipe(takeUntil(this.unsubscribe$)).subscribe((resp: any) => {
-      this.collections = resp?.data;
     });
   }
 
-  onGenderSelect(event: any) {
-    const selectedGenderId = event.target.value;
-    this.productForm.get('categoryId')?.setValue('');
-    if (selectedGenderId) {
-      this.commonService.getCategoriesByGender(selectedGenderId).pipe(takeUntil(this.unsubscribe$)).subscribe((resp: any) => {
-        this.categories = resp?.data;
-      });
-    } else this.categories = []
+  getCollectionsByBrand(brandId: any): void {
+    this.commonService.getCollectionsByBrand(brandId).pipe(takeUntil(this.unsubscribe$)).subscribe((resp: any) => {
+      this.collections = resp?.data || [];
+    });
   }
 
-  onBrandSelect(event: any) {
-    const brandId = event.target.value;
+  onGenderSelect(event: Event): void {
+    const selectedGenderId = (event.target as HTMLSelectElement).value;
+    this.productForm.get('categoryId')?.setValue('');
+    if (selectedGenderId) {
+      this.commonService.getCategoriesByGender(selectedGenderId)
+        .pipe(takeUntil(this.unsubscribe$))
+        .subscribe((resp: any) => {
+          this.categories = resp?.data || [];
+        });
+    } else {
+      this.categories = [];
+    }
+  }
+
+  onBrandSelect(event: Event): void {
+    const brandId = (event.target as HTMLSelectElement).value;
     this.productForm.get('collectionId')?.setValue('');
     if (brandId) {
       this.commonService.getCollectionsByBrand(brandId).pipe(takeUntil(this.unsubscribe$)).subscribe((resp: any) => {
-        this.collections = resp?.data;
+        this.collections = resp?.data || [];
       });
-    } else this.collections = []
+    } else {
+      this.collections = [];
+    }
   }
-
 
   onFileSelected(event: Event, index: number): void {
     const fileInput = event.target as HTMLInputElement;
     const file = fileInput.files?.[0];
 
     if (file) {
-      const controlName = fileInput.id;
       this.selectedFiles[index] = file;
-      if (!this.validateFile(file, controlName, index)) {
-        return;
-      }
+      if (!this.validateFile(file, fileInput.id, index)) return;
+
       const reader = new FileReader();
       reader.onload = (e: any) => {
         this.imagePreviews[index] = e.target.result;
       };
       reader.readAsDataURL(file);
     } else {
-      this.imagePreviews[index] = null;
-      this.selectedFiles[index] = null;
-      this.imageForm.get(fileInput.id)?.setValue(null);
-      fileInput.value = '';
+      this.resetFileInput(fileInput, index);
     }
+  }
+
+  private resetFileInput(fileInput: HTMLInputElement, index: number): void {
+    this.imagePreviews[index] = null;
+    this.selectedFiles[index] = null;
+    this.imageForm.get(fileInput.id)?.setValue(null);
+    fileInput.value = '';
   }
 
   validateFile(file: File, controlName: string, index: number): boolean {
@@ -241,7 +243,6 @@ export class AddProductComponent implements OnInit, OnDestroy {
     return true;
   }
 
-
   setFileError(controlName: string, errorType: string, index: number): void {
     const control = this.imageForm.get(controlName);
     if (control) {
@@ -259,7 +260,7 @@ export class AddProductComponent implements OnInit, OnDestroy {
     this.goToTop();
   }
 
-  alert(type: 'success' | 'danger', message: string) {
+  alert(type: 'success' | 'danger', message: string): void {
     this.alertMessage = message;
     this.alertType = type;
     this.showAlert = true;
@@ -269,12 +270,8 @@ export class AddProductComponent implements OnInit, OnDestroy {
     this.goToTop();
   }
 
-  goToTop() {
-    window.scroll({
-      top: 0,
-      left: 0,
-      behavior: 'smooth'
-    });
+  goToTop(): void {
+    window.scroll({ top: 0, left: 0, behavior: 'smooth' });
   }
 
   clearForm() {
